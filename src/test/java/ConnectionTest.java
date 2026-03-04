@@ -1,6 +1,5 @@
-package main;
-
 import br.com.observaacao.config.ConnectionFactory;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
 import java.sql.Connection;

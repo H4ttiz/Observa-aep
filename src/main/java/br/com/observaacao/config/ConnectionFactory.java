@@ -1,4 +1,4 @@
-package br.com.obsevaacao.config;
+package br.com.observaacao.config;
 
 import java.io.IOException;
 import java.io.InputStream;
