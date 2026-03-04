@@ -1,41 +1,59 @@
 package br.com.observaacao.config;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.util.Properties;
 
 public class ConnectionFactory {
 
-    private static final Properties properties = new Properties();
-
-    static {
+    public static Connection getConnection() {
         try {
-            InputStream local = ConnectionFactory.class
-                    .getClassLoader()
-                    .getResourceAsStream("application-local.properties");
-            if (local != null) {
-                properties.load(local);
-            } else {
-                InputStream padrao = ConnectionFactory.class
-                        .getClassLoader()
-                        .getResourceAsStream("application.properties");
+            Properties props = new Properties();
 
-                properties.load(padrao);
+            String env = System.getProperty("env", "default");
+
+            String[] filesToTry;
+
+            if ("test".equals(env)) {
+                filesToTry = new String[]{
+                        "application-test.properties",
+                        "application.properties"
+                };
+            } else {
+                filesToTry = new String[]{
+                        "application-local.properties",
+                        "application.properties"
+                };
             }
 
-        } catch (IOException e) {
-            throw new RuntimeException("Erro ao carregar propriedades do banco", e);
-        }
-    }
+            boolean loaded = false;
 
-    public static Connection getConnection() throws SQLException {
-        return DriverManager.getConnection(
-                properties.getProperty("db.url"),
-                properties.getProperty("db.user"),
-                properties.getProperty("db.password")
-        );
+            for (String file : filesToTry) {
+                try (InputStream input = ConnectionFactory.class
+                        .getClassLoader()
+                        .getResourceAsStream(file)) {
+
+                    if (input != null) {
+                        props.load(input);
+                        loaded = true;
+                        break;
+                    }
+                }
+            }
+
+            if (!loaded) {
+                throw new RuntimeException("Nenhum arquivo de configuração encontrado.");
+            }
+
+            return DriverManager.getConnection(
+                    props.getProperty("db.url"),
+                    props.getProperty("db.user"),
+                    props.getProperty("db.password")
+            );
+
+        } catch (Exception e) {
+            throw new RuntimeException("Erro ao conectar no banco", e);
+        }
     }
 }
