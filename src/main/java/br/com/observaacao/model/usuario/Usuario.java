@@ -1,9 +1,4 @@
-package br.com.observaacao.model;
+package br.com.observaacao.model.usuario;
 
 public class Usuario {
-    private Long id;
-    private String nome;
-    private String email;
-    private String senha;
-    pr
 }
