@@ -1,0 +1,16 @@
+br\com\observaacao\dto\usuario\UsuarioCadastroDto.class
+br\com\observaacao\dao\usuario\DaoUsuarioImpl.class
+br\com\observaacao\util\SenhaUtil.class
+br\com\observaacao\controller\AuthController$1.class
+br\com\observaacao\dto\usuario\UsuarioLoginDto.class
+br\com\observaacao\model\usuario\Usuario.class
+br\com\observaacao\service\usuario\ServiceUsuario.class
+br\com\observaacao\dao\usuario\DaoUsuario.class
+br\com\observaacao\app\Main.class
+br\com\observaacao\dao\DaoGenerico.class
+br\com\observaacao\controller\AuthController.class
+br\com\observaacao\model\usuario\TipoUsuario.class
+br\com\observaacao\config\ConnectionFactory.class
+br\com\observaacao\util\EmailUtil.class
+br\com\observaacao\model\EntityGenerico.class
+br\com\observaacao\controller\MenuCidadaoController.class

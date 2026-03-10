@@ -1,4 +1,4 @@
-package br.com.observaacao.controller;
+package br.com.observaacao.controller.cidadao;
 
 import br.com.observaacao.model.usuario.Usuario;
 
