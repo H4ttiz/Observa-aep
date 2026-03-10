@@ -1,4 +1,7 @@
 package br.com.observaacao.model;
 
-public class EntityGenerico {
+public abstract class EntityGenerico {
+
+    public abstract Long getId();
+
 }
