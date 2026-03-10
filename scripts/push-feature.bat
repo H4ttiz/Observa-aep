@@ -3,6 +3,7 @@ echo.
 
 git add -A
 
+echo.
 git status
 
 git diff --cached --quiet
@@ -10,14 +11,17 @@ if %errorlevel%==0 (
     echo.
     echo Nada para commit.
     pause
-    exit
+    exit /b
 )
 
 echo.
 set /p msg=Digite a mensagem do commit:
 
+echo.
 git commit -m "%msg%"
-git push
+
+echo.
+git push origin HEAD
 
 echo.
 echo Codigo enviado para o GitHub!
