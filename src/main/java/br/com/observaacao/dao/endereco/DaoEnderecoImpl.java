@@ -1,37 +1,201 @@
 package br.com.observaacao.dao.endereco;
 
+import br.com.observaacao.config.ConnectionFactory;
 import br.com.observaacao.model.endereco.Endereco;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class DaoEnderecoImpl implements DaoEndereco {
 
     private static final String TABELA = "enderecos";
 
-    @Override
-    public void salvar(Endereco entidade) {
+    private Endereco map(ResultSet rs) throws SQLException {
+        return new Endereco(
+                rs.getLong("id"),
+                rs.getString("cep"),
+                rs.getString("logradouro"),
+                rs.getString("numero"),
+                rs.getString("complemento"),
+                rs.getString("bairro"),
+                rs.getString("cidade"),
+                rs.getString("estado")
+        );
+    }
 
+    @Override
+    public void salvar(Endereco endereco) {
+
+        String sql = """
+            INSERT INTO\s""" + TABELA + """
+            (cep, logradouro, numero, complemento, bairro, cidade, estado)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """;
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(
+                        sql,
+                        PreparedStatement.RETURN_GENERATED_KEYS
+                )
+        ) {
+
+            stmt.setString(1, endereco.getCep());
+            stmt.setString(2, endereco.getLogradouro());
+            stmt.setString(3, endereco.getNumero());
+            stmt.setString(4, endereco.getComplemento());
+            stmt.setString(5, endereco.getBairro());
+            stmt.setString(6, endereco.getCidade());
+            stmt.setString(6, endereco.getEstado());
+
+            stmt.executeUpdate();
+
+            try (ResultSet rs = stmt.getGeneratedKeys()) {
+                if (rs.next()) {
+                    Long idGerado = rs.getLong(1);
+                    endereco.setId(idGerado);
+                }
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao salvar usuário", e);
+        }
     }
 
     @Override
     public Endereco buscarPorId(Long id) {
-        return null;
+
+        String sql = "SELECT * FROM " + TABELA + " WHERE id = ?";
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setLong(1, id);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? map(rs) : null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar usuário por id", e);
+        }
     }
 
     @Override
     public List<Endereco> listarTodos() {
-        return List.of();
+
+        String sql = "SELECT * FROM " + TABELA;
+        List<Endereco> endereco = new ArrayList<>();
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()
+        ) {
+
+            while (rs.next()) {
+                endereco.add(map(rs));
+            }
+
+            return endereco;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao listar usuários", e);
+        }
     }
 
     @Override
-    public void atualizar(Endereco entidade) {
+    public void atualizar(Endereco endereco) {
 
+        String sql = """
+            UPDATE\s""" + TABELA + """
+            SET nome = ?,
+                cep = ?,
+                logradouro = ?,
+                numero = ?,
+                complemento = ?,
+                bairro = ?,
+                cidade = ?,
+                estado = ?
+            WHERE id = ?
+            """;
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setString(1, endereco.getCep());
+            stmt.setString(2, endereco.getLogradouro());
+            stmt.setString(3, endereco.getNumero());
+            stmt.setString(4, endereco.getComplemento());
+            stmt.setString(5, endereco.getBairro());
+            stmt.setString(6, endereco.getCidade());
+            stmt.setString(6, endereco.getEstado());
+            stmt.setLong(6, endereco.getId());
+
+            int linhas = stmt.executeUpdate();
+
+            if (linhas == 0) {
+                throw new RuntimeException(
+                        "Nenhum endereço encontrado com id: " + endereco.getId()
+                );
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao atualizar endereço", e);
+        }
     }
 
     @Override
     public void desativar(Long id) {
 
+        String sql = "UPDATE " + TABELA + " SET ativo = false WHERE id = ?";
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setLong(1, id);
+
+            int linhas = stmt.executeUpdate();
+
+            if (linhas == 0) {
+                throw new RuntimeException(
+                        "Nenhum endereço encontrado com id: " + id
+                );
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao desativar endereço", e);
+        }
     }
 
+    @Override
+    public Endereco buscarPorCep(String cep) {
 
+        String sql = "SELECT * FROM " + TABELA + " WHERE cep = ?";
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setString(1, cep);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? map(rs) : null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar endereço por cep", e);
+        }
+    }
 }
