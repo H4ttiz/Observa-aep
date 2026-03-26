@@ -50,6 +50,9 @@ public class AuthController {
                 System.out.print("Nome: ");
                 String nome = sc.nextLine();
 
+                System.out.print("CPF: ");
+                String cpf = sc.nextLine();
+
                 System.out.print("Email: ");
                 String email = sc.nextLine();
 
@@ -57,7 +60,7 @@ public class AuthController {
                 String senha = sc.nextLine();
 
                 UsuarioCadastroDto dto =
-                        new UsuarioCadastroDto(nome, email, senha, null);
+                        new UsuarioCadastroDto(nome, cpf, email, senha, null);
 
                 Usuario usuario = service.cadastroNormal(dto, TipoUsuario.C);
 
@@ -102,7 +105,9 @@ public class AuthController {
 
                 case S -> System.out.println("Menu funcionário (em construção)");
 
-                case G -> System.out.println("Menu admin (em construção)");
+                case G -> System.out.println("Menu Gestor (em construção)");
+
+                case A -> System.out.println("Menu admin (em construção)");
             }
         }
 }

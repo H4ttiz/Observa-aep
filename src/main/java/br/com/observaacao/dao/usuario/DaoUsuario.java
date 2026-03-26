@@ -7,4 +7,6 @@ import br.com.observaacao.model.usuario.Usuario;
 public interface DaoUsuario extends DaoGenerico<Usuario> {
 
     Usuario buscarPorEmail(String email);
+
+    Usuario buscarPorCpf(String cpf);
 }

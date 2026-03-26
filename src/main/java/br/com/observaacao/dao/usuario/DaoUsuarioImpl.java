@@ -20,7 +20,9 @@ public class DaoUsuarioImpl implements DaoUsuario {
     private Usuario map(ResultSet rs) throws SQLException {
         return new Usuario(
                 rs.getLong("id"),
+                rs.getObject("criado_por", Long.class),
                 rs.getString("nome"),
+                rs.getString("cpf"),
                 rs.getString("email"),
                 rs.getString("senha"),
                 TipoUsuario.valueOf(rs.getString("tipo_usuario")),
@@ -34,8 +36,8 @@ public class DaoUsuarioImpl implements DaoUsuario {
 
         String sql = """
             INSERT INTO\s""" + TABELA + """
-            (nome, email, senha, tipo_usuario, data_criacao, ativo)
-            VALUES (?, ?, ?, ?, ?, ?)
+            (criado_por, nome, cpf, email, senha, tipo_usuario, data_criacao, ativo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """;
 
         try (
@@ -45,13 +47,14 @@ public class DaoUsuarioImpl implements DaoUsuario {
                         PreparedStatement.RETURN_GENERATED_KEYS
                 )
         ) {
-
-            stmt.setString(1, usuario.getNome());
-            stmt.setString(2, usuario.getEmail());
-            stmt.setString(3, usuario.getSenha());
-            stmt.setString(4, usuario.getTipoUsuario().name());
-            stmt.setObject(5, usuario.getDataCriacao());
-            stmt.setBoolean(6, usuario.isAtivo());
+            stmt.setObject(1, usuario.getCriadoPor());
+            stmt.setString(2, usuario.getNome());
+            stmt.setString(3, usuario.getCpf());
+            stmt.setString(4, usuario.getEmail());
+            stmt.setString(5, usuario.getSenha());
+            stmt.setString(6, usuario.getTipoUsuario().name());
+            stmt.setObject(7, usuario.getDataCriacao());
+            stmt.setBoolean(8, usuario.isAtivo());
 
             stmt.executeUpdate();
 
@@ -63,7 +66,7 @@ public class DaoUsuarioImpl implements DaoUsuario {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar usuário", e);
+            throw new RuntimeException("erro ao salvar usuario", e);
         }
     }
 
@@ -190,7 +193,27 @@ public class DaoUsuarioImpl implements DaoUsuario {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar usuário por id", e);
+            throw new RuntimeException("Erro ao buscar usuário por email", e);
+        }
+    }
+
+    @Override
+    public Usuario buscarPorCpf(String cpf) {
+        String sql = "SELECT * FROM " + TABELA + " WHERE cpf = ?";
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setString(1, cpf);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? map(rs) : null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e.getMessage());
         }
     }
 }

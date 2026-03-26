@@ -7,15 +7,19 @@ import java.time.LocalDateTime;
 public class Usuario extends EntityGenerico {
 
     private Long id;
+    private Long criadoPor;
     private String nome;
+    private String cpf;
     private String email;
     private String senha;
     private TipoUsuario tipoUsuario;
     private final LocalDateTime dataCriacao;
     private boolean ativo;
 
-    public Usuario(String nome, String email, String senha, TipoUsuario tipoUsuario) {
+    public Usuario(Long criadoPor, String nome, String cpf, String email, String senha, TipoUsuario tipoUsuario) {
+        this.criadoPor = criadoPor;
         this.nome = nome;
+        this.cpf = cpf;
         this.email = email;
         this.senha = senha;
         this.tipoUsuario = tipoUsuario;
@@ -23,9 +27,12 @@ public class Usuario extends EntityGenerico {
         this.ativo = true;
     }
 
-    public Usuario(Long id, String nome, String email, String senha, TipoUsuario tipoUsuario, LocalDateTime dataCriacao, boolean ativo) {
+    public Usuario(Long id, Long criadoPor, String nome, String cpf, String email, String senha,
+                   TipoUsuario tipoUsuario, LocalDateTime dataCriacao, boolean ativo) {
         this.id = id;
+        this.criadoPor = criadoPor;
         this.nome = nome;
+        this.cpf = cpf;
         this.email = email;
         this.senha = senha;
         this.tipoUsuario = tipoUsuario;
@@ -42,12 +49,28 @@ public class Usuario extends EntityGenerico {
         this.id = id;
     }
 
+    public Long getCriadoPor() {
+        return criadoPor;
+    }
+
+    public void setCriadoPor(Long criadoPor) {
+        this.criadoPor = criadoPor;
+    }
+
     public String getNome() {
         return nome;
     }
 
     public void setNome(String nome) {
         this.nome = nome;
+    }
+
+    public String getCpf() {
+        return cpf;
+    }
+
+    public void setCpf(String cpf) {
+        this.cpf = cpf;
     }
 
     public String getEmail() {
