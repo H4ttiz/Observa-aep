@@ -23,7 +23,6 @@ public class DaoCategoriaimpl implements DaoCategoria{
                 rs.getLong("id"),
                 rs.getString("categoria"),
                 rs.getString("descricao"),
-                NivelPrioridade.valueOf(rs.getString("nivel_Prioridade")),
                 rs.getObject("data_criacao", LocalDateTime.class),
                 rs.getBoolean("ativo")
         );
@@ -34,7 +33,7 @@ public class DaoCategoriaimpl implements DaoCategoria{
     public void salvar(Categoria categoria) {
         String sql = """
             INSERT INTO\s""" + TABELA + """
-            (categoria, descricao, nivel_Prioridade, data_Criacao, ativo)
+            (categoria, descricao, data_Criacao, ativo)
             VALUES (?, ?, ?, ?, ?)
             """;
 
@@ -48,7 +47,6 @@ public class DaoCategoriaimpl implements DaoCategoria{
 
             stmt.setString(1, categoria.getCategoria());
             stmt.setString(2, categoria.getDescricao());
-            stmt.setString(3, categoria.getNivelPrioridade().name());
             stmt.setObject(4, categoria.getDataCriacao());
             stmt.setBoolean(5, categoria.isAtivo());
 
@@ -117,7 +115,6 @@ public class DaoCategoriaimpl implements DaoCategoria{
             UPDATE\s""" + TABELA + """
             SET categoria = ?,
                 descricao = ?,
-                nivel_Prioridade = ?,
                 ativo = ?
             WHERE id = ?
             """;
@@ -129,7 +126,6 @@ public class DaoCategoriaimpl implements DaoCategoria{
 
             stmt.setString(1, categoria.getCategoria());
             stmt.setString(2, categoria.getDescricao());
-            stmt.setString(3, categoria.getNivelPrioridade().name());
             stmt.setBoolean(4, categoria.isAtivo());
             stmt.setLong(5, categoria.getId());
 

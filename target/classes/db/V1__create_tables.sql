@@ -1,17 +1,17 @@
-CREATE TABLE usuarios (
-    id bigserial  NOT NULL,
-    criado_por bigserial  NULL,
-    nome varchar(150) NOT NULL,
-    cpf bpchar(11) NOT NULL,
-    email varchar(150) NOT NULL,
-    senha varchar(255) NOT NULL,
-    tipo_usuario bpchar(1) NOT NULL,
-    data_criacao timestamp DEFAULT CURRENT_TIMESTAMP NULL,
-    ativo bool DEFAULT true NULL,
-    CONSTRAINT usuarios_email_key UNIQUE (email),
-    CONSTRAINT usuarios_pk PRIMARY KEY (id),
-    CONSTRAINT usuarios_unique UNIQUE (cpf),
-    CONSTRAINT fk_criado_por FOREIGN KEY(criado_por) REFERENCES usuarios(id)
+CREATE TABLE public.usuarios (
+	id bigserial NOT NULL,
+	criado_por int8,
+	nome varchar(150) NOT NULL,
+	cpf bpchar(11) NOT NULL,
+	email varchar(150) NOT NULL,
+	senha varchar(255) NOT NULL,
+	tipo_usuario bpchar(1) NOT NULL,
+	data_criacao timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	ativo bool DEFAULT true NULL,
+	CONSTRAINT usuarios_email_key UNIQUE (email),
+	CONSTRAINT usuarios_pk PRIMARY KEY (id),
+	CONSTRAINT usuarios_unique UNIQUE (cpf),
+	CONSTRAINT fk_criado_por FOREIGN KEY (criado_por) REFERENCES public.usuarios(id)
 );
 CREATE TABLE categorias (
     id bigserial  NOT NULL,
