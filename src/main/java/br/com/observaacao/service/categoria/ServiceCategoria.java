@@ -36,8 +36,7 @@ public class ServiceCategoria {
 
         Categoria categoria = new Categoria(
                 novaCategoria.getCategoria(),
-                novaCategoria.getDescricao(),
-                novaCategoria.getNivelPrioridade()
+                novaCategoria.getDescricao()
         );
 
         daoCategoria.salvar(categoria);

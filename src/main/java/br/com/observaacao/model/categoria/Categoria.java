@@ -13,19 +13,17 @@ public class Categoria extends EntityGenerico {
     private final LocalDateTime dataCriacao;
     private boolean ativo;
 
-    public Categoria(String categoria, String descricao, NivelPrioridade nivelPrioridade) {
+    public Categoria(String categoria, String descricao) {
         this.categoria = categoria;
         this.descricao = descricao;
-        this.nivelPrioridade = nivelPrioridade;
         this.dataCriacao = LocalDateTime.now();
         this.ativo = true;
     }
 
-    public Categoria(Long id, String categoria, String descricao,NivelPrioridade nivelPrioridade, LocalDateTime dataCriacao, boolean ativo) {
+    public Categoria(Long id, String categoria, String descricao, LocalDateTime dataCriacao, boolean ativo) {
         this.id = id;
         this.categoria = categoria;
         this.descricao = descricao;
-        this.nivelPrioridade = nivelPrioridade;
         this.dataCriacao = dataCriacao;
         this.ativo = ativo;
     }
@@ -48,14 +46,6 @@ public class Categoria extends EntityGenerico {
 
     public void setDescricao(String descricao) {
         this.descricao = descricao;
-    }
-
-    public NivelPrioridade getNivelPrioridade() {
-        return nivelPrioridade;
-    }
-
-    public void setNivelPrioridade(NivelPrioridade nivelPrioridade) {
-        this.nivelPrioridade = nivelPrioridade;
     }
 
     public LocalDateTime getDataCriacao() {
