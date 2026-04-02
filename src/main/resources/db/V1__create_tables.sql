@@ -33,3 +33,23 @@ CREATE TABLE enderecos (
     estado varchar(2) NOT NULL,
     CONSTRAINT enderecos_pk PRIMARY KEY (id)
 );
+CREATE TABLE public.solicitacoes (
+	id bigserial NOT NULL,
+	id_categoria int8 NOT NULL,
+	id_solicitante int8 NOT NULL,
+	id_atendente int8,
+	id_endereco int8 NOT NULL,
+	status char(2) NOT NULL,
+	prioridade char(2),
+	anonimo bool NOT null default false,
+	titulo varchar(150) NOT NULL,
+	descricao text NOT NULL,
+	data_solicitada timestamp DEFAULT CURRENT_TIMESTAMP NULL,
+	data_prazo timestamp NULL,
+	data_finalizada timestamp NULL,
+	CONSTRAINT solicitacoes_pk PRIMARY KEY (id),
+	CONSTRAINT fk_id_categoria FOREIGN KEY (id_categoria) REFERENCES public.categorias(id),
+	CONSTRAINT fk_id_solicitante FOREIGN KEY (id_solicitante) REFERENCES public.usuarios(id),
+	CONSTRAINT fk_id_atendente FOREIGN KEY (id_atendente) REFERENCES public.usuarios(id),
+	CONSTRAINT fk_id_endereco FOREIGN KEY (id_endereco) REFERENCES public.enderecos(id)
+);
