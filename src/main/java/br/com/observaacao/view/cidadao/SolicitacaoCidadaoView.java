@@ -176,6 +176,7 @@ public class SolicitacaoCidadaoView {
         System.out.println("\n" + Cores.CIANO + "  ┏━ REVISÃO DOS DADOS ━━━━━━━━━━━━━━━━━━━━━━━");
         System.out.println("  ┃ Título: " + tit);
         System.out.println("  ┃ Categoria: " + cat.getCategoria());
+        System.out.println("  ┃ Descrição: " + desc);
         System.out.println("  ┃ Local: " + end.getLogradouro() + ", " + end.getNumero() + " - " + end.getBairro());
         System.out.println("  ┃ Identidade: " + (anon ? "Anônima" : "Identificada"));
         System.out.println("  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" + Cores.RESET);
