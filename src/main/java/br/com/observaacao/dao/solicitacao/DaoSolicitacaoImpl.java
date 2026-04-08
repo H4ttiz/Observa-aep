@@ -34,15 +34,16 @@ public class DaoSolicitacaoImpl implements DaoSolicitacao {
                 rs.getString("descricao"),
                 rs.getObject("data_solicitada", LocalDateTime.class),
                 rs.getObject("data_prazo", LocalDateTime.class),
-                rs.getObject("data_finalizada", LocalDateTime.class)
+                rs.getObject("data_finalizada", LocalDateTime.class),
+                rs.getObject("observacao", String.class)
         );
     }
 
     @Override
     public void salvar(Solicitacao solicitacao) {
         String sql = "INSERT INTO " + TABELA +
-                " (id_categoria, id_solicitante, id_atendente, id_endereco, status, prioridade, anonimo, titulo, descricao, data_solicitada, data_prazo, data_finalizada) " +
-                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                " (id_categoria, id_solicitante, id_atendente, id_endereco, status, prioridade, anonimo, titulo, descricao, data_solicitada, data_prazo, data_finalizada,observacao) " +
+                " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
 
         try (
                 Connection conn = ConnectionFactory.getConnection();
@@ -66,6 +67,7 @@ public class DaoSolicitacaoImpl implements DaoSolicitacao {
             stmt.setObject(10, solicitacao.getDt_solicitada());
             stmt.setObject(11, solicitacao.getDt_prazo());
             stmt.setObject(12, solicitacao.getDt_finalizada());
+            stmt.setObject(13, solicitacao.getObservacao());
 
             stmt.executeUpdate();
 
@@ -119,7 +121,7 @@ public class DaoSolicitacaoImpl implements DaoSolicitacao {
     @Override
     public void atualizar(Solicitacao solicitacao) {
         String sql = "UPDATE " + TABELA +
-                " SET id_categoria = ?, id_solicitante = ?, id_atendente = ?, id_endereco = ?, status = ?, prioridade = ?, anonimo = ?, titulo = ?, descricao = ?, data_solicitada = ?, data_prazo = ?, data_finalizada = ? " +
+                " SET id_categoria = ?, id_solicitante = ?, id_atendente = ?, id_endereco = ?, status = ?, prioridade = ?, anonimo = ?, titulo = ?, descricao = ?, data_solicitada = ?, data_prazo = ?, data_finalizada = ? , observacao = ? " +
                 " WHERE id = ?";
 
         try (
@@ -144,7 +146,8 @@ public class DaoSolicitacaoImpl implements DaoSolicitacao {
             stmt.setObject(10, solicitacao.getDt_solicitada());
             stmt.setObject(11, solicitacao.getDt_prazo());
             stmt.setObject(12, solicitacao.getDt_finalizada());
-            stmt.setLong(13, solicitacao.getId());
+            stmt.setObject(13, solicitacao.getObservacao());
+            stmt.setLong(14, solicitacao.getId());
 
             int linhas = stmt.executeUpdate();
             if (linhas == 0) {
@@ -187,6 +190,30 @@ public class DaoSolicitacaoImpl implements DaoSolicitacao {
                 PreparedStatement stmt = conn.prepareStatement(sql)
         ) {
             stmt.setLong(1, idUsuario);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    solicitacoes.add(map(rs));
+                }
+            }
+
+            return solicitacoes;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Não foi possível carregar seu histórico de solicitações agora. (Status 500 - Erro no Servidor)");
+        }
+    }
+
+    @Override
+    public List<Solicitacao> buscarSolicitacaoPendente() {
+        String sql = "SELECT * FROM " + TABELA + " WHERE status = 'N1'";
+        List<Solicitacao> solicitacoes = new ArrayList<>();
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {

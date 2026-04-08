@@ -8,4 +8,6 @@ import java.util.List;
 
 public interface DaoSolicitacao extends DaoGenerico<Solicitacao> {
     List<Solicitacao> listaPorUsuario(Long idUsuario);
+
+    List<Solicitacao> buscarSolicitacaoPendente();
 }

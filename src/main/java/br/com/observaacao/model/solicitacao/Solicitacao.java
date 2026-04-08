@@ -21,11 +21,12 @@ public class Solicitacao extends EntityGenerico {
     private LocalDateTime dt_solicitada;
     private LocalDateTime dt_prazo;
     private LocalDateTime dt_finalizada;
+    private String observacao;
 
     public Solicitacao(Long id_categoria, Long id_solicitante, Long id_atendente, Long id_endereco,
                        StatusSolicitacao status, NivelPrioridade prioridade, Boolean anonimo,
                        String titulo, String descricao, LocalDateTime dt_solicitada,
-                       LocalDateTime dt_prazo, LocalDateTime dt_finalizada) {
+                       LocalDateTime dt_prazo, LocalDateTime dt_finalizada,String observacao) {
         this.id_categoria = id_categoria;
         this.id_solicitante = id_solicitante;
         this.id_atendente = id_atendente;
@@ -38,13 +39,14 @@ public class Solicitacao extends EntityGenerico {
         this.dt_solicitada = dt_solicitada;
         this.dt_prazo = dt_prazo;
         this.dt_finalizada = dt_finalizada;
+        this.observacao = observacao;
     }
 
     public Solicitacao(Long id, Long id_categoria, Long id_solicitante, Long id_atendente,
                        Long id_endereco, StatusSolicitacao status, NivelPrioridade prioridade,
                        Boolean anonimo, String titulo, String descricao,
                        LocalDateTime dt_solicitada, LocalDateTime dt_prazo,
-                       LocalDateTime dt_finalizada) {
+                       LocalDateTime dt_finalizada, String observacao) {
         this.id = id;
         this.id_categoria = id_categoria;
         this.id_solicitante = id_solicitante;
@@ -58,6 +60,7 @@ public class Solicitacao extends EntityGenerico {
         this.dt_solicitada = dt_solicitada;
         this.dt_prazo = dt_prazo;
         this.dt_finalizada = dt_finalizada;
+        this.observacao = observacao;
     }
 
     @Override
@@ -99,4 +102,12 @@ public class Solicitacao extends EntityGenerico {
 
     public LocalDateTime getDt_finalizada() { return dt_finalizada; }
     public void setDt_finalizada(LocalDateTime dt_finalizada) { this.dt_finalizada = dt_finalizada; }
+
+    public String getObservacao() {
+        return observacao;
+    }
+
+    public void setObservacao(String observacao) {
+        this.observacao = observacao;
+    }
 }

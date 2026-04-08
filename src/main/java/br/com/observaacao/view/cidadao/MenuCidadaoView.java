@@ -31,7 +31,7 @@ public class MenuCidadaoView {
         while (true) {
             System.out.println("\n" + Cores.CIANO + "  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
             System.out.printf("  ┃  👤 %-39s \n", Cores.AMARELO + usuario.getNome().toUpperCase() + Cores.CIANO);
-            System.out.printf("  ┃  🆔 %-39s┃\n", Cores.RESET + "CPF: " + cpfUtil.formatarCpf(usuario.getCpf()) + Cores.CIANO);
+            System.out.printf("  ┃  🆔 %-39s\n", Cores.RESET + "CPF: " + cpfUtil.formatarCpf(usuario.getCpf()) + Cores.CIANO);
             System.out.println("  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛" + Cores.RESET);
 
             System.out.println("  " + Cores.AZUL + "[ MENU PRINCIPAL ]" + Cores.RESET);
@@ -53,13 +53,13 @@ public class MenuCidadaoView {
             switch (opcao) {
                 case 1 -> {
                     Loading.executar("Iniciando formulário");
-                    new SolicitacaoView(serviceEndereco, serviceSolicitacao, serviceCategoria)
+                    new SolicitacaoCidadaoView(serviceEndereco, serviceSolicitacao, serviceCategoria)
                             .criarSolicitacao(usuario);
                 }
 
                 case 2 -> {
                     Loading.executar("Buscando registros");
-                    new SolicitacaoView(serviceEndereco, serviceSolicitacao, serviceCategoria)
+                    new SolicitacaoCidadaoView(serviceEndereco, serviceSolicitacao, serviceCategoria)
                             .visualizarSolicitacao(usuario);
                 }
 

@@ -11,6 +11,7 @@ import br.com.observaacao.dto.usuario.UsuarioLoginDto;
 import br.com.observaacao.model.enums.TipoUsuario;
 import br.com.observaacao.model.usuario.Usuario;
 import br.com.observaacao.service.usuario.ServiceUsuario;
+import br.com.observaacao.view.gestor.MenuGestorView;
 
 import java.util.Scanner;
 
@@ -129,7 +130,10 @@ public class AuthView {
                     .menu(usuario);
 
             case S -> System.out.println(Cores.AMARELO + "\n  [!] Módulo Servidor em desenvolvimento." + Cores.RESET);
-            case G -> System.out.println(Cores.AMARELO + "\n  [!] Módulo Gestor em desenvolvimento." + Cores.RESET);
+
+            case G -> new MenuGestorView(serviceSolicitacao,service,serviceEndereco)
+                    .menu(usuario);
+
             case A -> System.out.println(Cores.AMARELO + "\n  [!] Módulo Administrador em desenvolvimento." + Cores.RESET);
         }
     }

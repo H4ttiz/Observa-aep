@@ -7,4 +7,5 @@ public class Cores {
     public static final String AMARELO = "\u001B[33m";
     public static final String AZUL = "\u001B[34m";
     public static final String CIANO = "\u001B[36m";
+    public static final String ROXO = "\u001B[35m";
 }

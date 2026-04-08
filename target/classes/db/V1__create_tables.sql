@@ -47,6 +47,7 @@ CREATE TABLE public.solicitacoes (
 	data_solicitada timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	data_prazo timestamp NULL,
 	data_finalizada timestamp NULL,
+    observacao TEXT,
 	CONSTRAINT solicitacoes_pk PRIMARY KEY (id),
 	CONSTRAINT fk_id_categoria FOREIGN KEY (id_categoria) REFERENCES public.categorias(id),
 	CONSTRAINT fk_id_solicitante FOREIGN KEY (id_solicitante) REFERENCES public.usuarios(id),

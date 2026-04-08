@@ -212,4 +212,6 @@ public class DaoUsuarioImpl implements DaoUsuario {
             throw new RuntimeException("Erro ao validar CPF. Por favor, verifique sua conexão ou tente mais tarde.");
         }
     }
+
+
 }

@@ -9,6 +9,7 @@ import br.com.observaacao.util.CpfUtil;
 import br.com.observaacao.util.EmailUtil;
 import br.com.observaacao.util.SenhaUtil;
 
+import java.util.List;
 
 
 public class ServiceUsuario {
@@ -83,5 +84,24 @@ public class ServiceUsuario {
         }
 
         return usuario;
+    }
+
+    public Usuario buscarPorId(Long id) {
+        if (id == null || id <= 0) {
+            throw new IllegalArgumentException("ID de usuário inválido.");
+        }
+
+        try {
+            Usuario usuario = daoUsuario.buscarPorId(id);
+
+            if (usuario == null) {
+                throw new RuntimeException("Usuário com ID " + id + " não encontrado.");
+            }
+
+            return usuario;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Falha técnica ao buscar usuário: " + e.getMessage());
+        }
     }
 }

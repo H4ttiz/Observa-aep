@@ -15,14 +15,14 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Scanner;
 
-public class SolicitacaoView {
+public class SolicitacaoCidadaoView {
 
     private final Scanner sc = new Scanner(System.in);
     private final ServiceEndereco serviceEndereco;
     private final ServiceSolicitacao serviceSolicitacao;
     private final ServiceCategoria serviceCategoria;
 
-    public SolicitacaoView(ServiceEndereco serviceEndereco, ServiceSolicitacao serviceSolicitacao, ServiceCategoria serviceCategoria) {
+    public SolicitacaoCidadaoView(ServiceEndereco serviceEndereco, ServiceSolicitacao serviceSolicitacao, ServiceCategoria serviceCategoria) {
         this.serviceEndereco = serviceEndereco;
         this.serviceSolicitacao = serviceSolicitacao;
         this.serviceCategoria = serviceCategoria;
@@ -111,7 +111,7 @@ public class SolicitacaoView {
             Solicitacao solicitacao = new Solicitacao(
                     idCategoria, usuario.getId(), null, idEndereco,
                     StatusSolicitacao.N1, null, anonimo, titulo, descricao,
-                    LocalDateTime.now(), null, null
+                    LocalDateTime.now(), null, null,null
             );
 
             serviceSolicitacao.cadastrar(solicitacao);
@@ -139,11 +139,23 @@ public class SolicitacaoView {
                 Categoria cat = serviceCategoria.buscaDeId(s.getId_categoria());
 
                 System.out.println(Cores.AZUL + "  ID: #" + s.getId() + " - " + s.getTitulo().toUpperCase() + Cores.RESET);
-                System.out.println("  ┃ Status: " + formatarStatus(s.getStatus()));
+                System.out.println("  ┃ Status: " + s.getStatus().getStatus());
                 System.out.println("  ┃ Categoria: " + (cat != null ? cat.getCategoria() : "N/A"));
                 System.out.println("  ┃ Data: " + s.getDt_solicitada().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-                System.out.println("  ┃ Descrição: " + s.getDescricao());
-                System.out.println("  ┗" + Cores.CIANO + "─────────────────────────────────────────────" + Cores.RESET);
+                if (s.getStatus() != StatusSolicitacao.N1) {
+                    System.out.println("  ┃ Prioridade: " + (s.getPrioridade() != null ? s.getPrioridade().getPrioridade() : "N/A"));
+
+                    if (s.getDt_prazo() != null) {
+                        System.out.println("  ┃ Prazo:      " + Cores.VERDE + s.getDt_prazo().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + Cores.RESET);
+                    }
+
+                    if (s.getObservacao() != null && !s.getObservacao().isBlank()) {
+                        System.out.println("  ┃ Observação: " + Cores.AMARELO + s.getObservacao() + Cores.RESET);
+                    }
+                }
+
+                System.out.println("  ┃ Descrição:  " + s.getDescricao());
+                System.out.println("  ┗" + Cores.CIANO + "────────────────────────────────────────────────────────" + Cores.RESET);
             }
 
             System.out.println("\n  Pressione ENTER para voltar ao menu...");
@@ -154,15 +166,6 @@ public class SolicitacaoView {
         }
     }
 
-
-    private String formatarStatus(StatusSolicitacao status) {
-        return switch (status) {
-            case N1 -> Cores.AMARELO + "AGUARDANDO" + Cores.RESET;
-            case N2 -> Cores.CIANO + "EM ANÁLISE" + Cores.RESET;
-            case N3 -> Cores.VERDE + "CONCLUÍDO" + Cores.RESET;
-            default -> status.name();
-        };
-    }
 
     private String lerComplemento() {
         System.out.print("    Complemento: ");
