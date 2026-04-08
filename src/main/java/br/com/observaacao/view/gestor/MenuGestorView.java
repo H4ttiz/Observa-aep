@@ -1,7 +1,6 @@
 package br.com.observaacao.view.gestor;
 
 import br.com.observaacao.model.usuario.Usuario;
-import br.com.observaacao.service.categoria.ServiceCategoria;
 import br.com.observaacao.service.endereco.ServiceEndereco;
 import br.com.observaacao.service.solicitacao.ServiceSolicitacao;
 import br.com.observaacao.service.usuario.ServiceUsuario;
@@ -85,7 +84,7 @@ public class MenuGestorView {
                 telaDecisao.aprovar(usuario);
             }
             case 4 -> {
-                telaDecisao.rejeitar(usuario);
+                telaDecisao.rejeitar();
             }
             case 5 -> {
                 Loading.executar("Sincronizando Andamento");

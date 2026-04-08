@@ -11,4 +11,6 @@ public interface DaoSolicitacao extends DaoGenerico<Solicitacao> {
     List<Solicitacao> listaPorUsuario(Long idUsuario);
 
     List<Solicitacao> buscarSolicitacaoEspecifica(StatusSolicitacao statusSolicitacao);
+
+    List<Solicitacao> listaPorAtendente(Long idAtendente);
 }

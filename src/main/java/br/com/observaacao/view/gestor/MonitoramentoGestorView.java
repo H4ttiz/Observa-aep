@@ -75,48 +75,48 @@ public class MonitoramentoGestorView {
         }
     }
 
-    private void imprimirCardMonitoramento(Solicitacao s, boolean isAtrasada) {
+    private void imprimirCardMonitoramento(Solicitacao solicitacao, boolean isAtrasada) {
         String corDestaque = isAtrasada ? Cores.VERMELHO : Cores.CIANO;
 
-        System.out.println("\n" + corDestaque + "  ID: #" + s.getId() + " - " + s.getTitulo().toUpperCase() + Cores.RESET);
-        System.out.println("  ┃ Status:    " + s.getStatus().getStatus());
-        System.out.println("  ┃ Prioridade: " + (s.getPrioridade() != null ? s.getPrioridade().getPrioridade() : "N/A"));
+        System.out.println("\n" + corDestaque + "  ID: #" + solicitacao.getId() + " - " + solicitacao.getTitulo().toUpperCase() + Cores.RESET);
+        System.out.println("  ┃ Status:    " + solicitacao.getStatus().getStatus());
+        System.out.println("  ┃ Prioridade: " + (solicitacao.getPrioridade() != null ? solicitacao.getPrioridade().getPrioridade() : "N/A"));
 
-        if (s.getDt_prazo() != null) {
+        if (solicitacao.getDt_prazo() != null) {
             String corPrazo = isAtrasada ? Cores.VERMELHO : Cores.VERDE;
-            System.out.println("  ┃ Prazo Final: " + corPrazo + s.getDt_prazo().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " (VENCIDO)" + Cores.RESET);
+            System.out.println("  ┃ Prazo Final: " + corPrazo + solicitacao.getDt_prazo().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + " (VENCIDO)" + Cores.RESET);
         }
 
         if (isAtrasada) {
             System.out.println("  ┃ " + Cores.VERMELHO + "⚠ ATENÇÃO: Esta solicitação requer ação imediata!" + Cores.RESET);
         }
 
-        System.out.println("  ┃ Local: " + s.getDescricao()); // Ou busque o endereço se preferir
+        System.out.println("  ┃ Local: " + solicitacao.getDescricao()); // Ou busque o endereço se preferir
         System.out.println("  ┗" + corDestaque + "────────────────────────────────────────────────────────" + Cores.RESET);
     }
 
-    private void imprimirCardComAtendente(Solicitacao s) {
-        System.out.println("\n" + Cores.ROXO + "  ID: #" + s.getId() + " - " + s.getTitulo().toUpperCase() + Cores.RESET);
-        System.out.println("  ┃ Status:    " + s.getStatus().getStatus());
+    private void imprimirCardComAtendente(Solicitacao solicitacao) {
+        System.out.println("\n" + Cores.ROXO + "  ID: #" + solicitacao.getId() + " - " + solicitacao.getTitulo().toUpperCase() + Cores.RESET);
+        System.out.println("  ┃ Status:    " + solicitacao.getStatus().getStatus());
 
         System.out.print("  ┃ Responsável: ");
-        if (s.getId_atendente() == null || s.getId_atendente() == 0) {
+        if (solicitacao.getId_atendente() == null || solicitacao.getId_atendente() == 0) {
             System.out.println(Cores.VERMELHO + "EQUIPE NÃO VINCULADA" + Cores.RESET);
         } else {
             try {
-                Usuario atendente = serviceUsuario.buscarPorId(s.getId_atendente());
+                Usuario atendente = serviceUsuario.buscarPorId(solicitacao.getId_atendente());
                 System.out.println(Cores.VERDE + atendente.getNome() + " (Servidor Público)" + Cores.RESET);
                 System.out.println("  ┃   📧 Contato: " + atendente.getEmail());
             } catch (Exception e) {
-                System.out.println(Cores.AMARELO + "ID #" + s.getId_atendente() + " (Erro ao carregar nome)" + Cores.RESET);
+                System.out.println(Cores.AMARELO + "ID #" + solicitacao.getId_atendente() + " (Erro ao carregar nome)" + Cores.RESET);
             }
         }
 
-        if (s.getDt_prazo() != null) {
-            System.out.println("  ┃ Prazo Final: " + Cores.VERDE + s.getDt_prazo().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + Cores.RESET);
+        if (solicitacao.getDt_prazo() != null) {
+            System.out.println("  ┃ Prazo Final: " + Cores.VERDE + solicitacao.getDt_prazo().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + Cores.RESET);
         }
 
-        System.out.println("  ┃ Local: " + s.getDescricao());
+        System.out.println("  ┃ Local: " + solicitacao.getDescricao());
         System.out.println("  ┗" + Cores.ROXO + "────────────────────────────────────────────────────────" + Cores.RESET);
     }
 }

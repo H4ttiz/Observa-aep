@@ -37,8 +37,8 @@ public class SolicitacaoGestorView {
             return;
         }
 
-        for (Solicitacao s : lista) {
-            imprimirCard(s);
+        for (Solicitacao solicitacao : lista) {
+            imprimirCard(solicitacao);
         }
     }
 
@@ -55,8 +55,8 @@ public class SolicitacaoGestorView {
             return;
         }
 
-        for (Solicitacao s : lista) {
-            imprimirCard(s);
+        for (Solicitacao solicitacao : lista) {
+            imprimirCard(solicitacao);
         }
     }
 
@@ -80,10 +80,10 @@ public class SolicitacaoGestorView {
             System.out.println(Cores.AMARELO + "ANÔNIMO" + Cores.RESET);
         } else {
             try {
-                Usuario u = serviceUsuario.buscarPorId(s.getId_solicitante());
-                System.out.println(Cores.VERDE + u.getNome() + Cores.RESET);
-                System.out.println("  ┃   📧 Email: " + u.getEmail());
-                System.out.println("  ┃   🆔 CPF:   " + cpfUtil.formatarCpf(u.getCpf()));
+                Usuario usuario = serviceUsuario.buscarPorId(s.getId_solicitante());
+                System.out.println(Cores.VERDE + usuario.getNome() + Cores.RESET);
+                System.out.println("  ┃   📧 Email: " + usuario.getEmail());
+                System.out.println("  ┃   🆔 CPF:   " + cpfUtil.formatarCpf(usuario.getCpf()));
             } catch (Exception e) {
                 System.out.println(Cores.VERMELHO + "Erro ao carregar dados do usuário" + Cores.RESET);
             }
@@ -91,9 +91,9 @@ public class SolicitacaoGestorView {
 
         System.out.println("  ┃ Localização:");
         try {
-            var end = serviceEndereco.buscarPorId(s.getId_endereco());
-            System.out.println("  ┃   📍 " + end.getLogradouro() + ", " + end.getNumero() + " - " + end.getBairro());
-            System.out.println("  ┃   🏙️ " + end.getCidade() + " / " + end.getEstado());
+            var endereco = serviceEndereco.buscarPorId(s.getId_endereco());
+            System.out.println("  ┃   📍 " + endereco.getLogradouro() + ", " + endereco.getNumero() + " - " + endereco.getBairro());
+            System.out.println("  ┃   🏙️ " + endereco.getCidade() + " / " + endereco.getEstado());
         } catch (Exception e) {
             System.out.println("  ┃   ⚠ Endereço não localizado.");
         }

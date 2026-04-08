@@ -80,9 +80,9 @@ public class SolicitacaoCidadaoView {
             System.out.println("\n" + Cores.AZUL + "  [ SELECIONE UMA CATEGORIA ]" + Cores.RESET);
             List<Categoria> categorias = serviceCategoria.listarTodos();
 
-            for (Categoria c : categorias) {
+            for (Categoria categoria : categorias) {
                 System.out.printf("    " + Cores.CIANO + "[%d]" + Cores.RESET + " %-15s | %s\n",
-                        c.getId(), c.getCategoria(), c.getDescricao());
+                        categoria.getId(), categoria.getCategoria(), categoria.getDescricao());
             }
 
             Long idCategoria = 0L;
@@ -135,26 +135,26 @@ public class SolicitacaoCidadaoView {
                 return;
             }
 
-            for (Solicitacao s : lista) {
-                Categoria cat = serviceCategoria.buscaDeId(s.getId_categoria());
+            for (Solicitacao solicitacao : lista) {
+                Categoria cat = serviceCategoria.buscaDeId(solicitacao.getId_categoria());
 
-                System.out.println(Cores.AZUL + "  ID: #" + s.getId() + " - " + s.getTitulo().toUpperCase() + Cores.RESET);
-                System.out.println("  ┃ Status: " + s.getStatus().getStatus());
+                System.out.println(Cores.AZUL + "  ID: #" + solicitacao.getId() + " - " + solicitacao.getTitulo().toUpperCase() + Cores.RESET);
+                System.out.println("  ┃ Status: " + solicitacao.getStatus().getStatus());
                 System.out.println("  ┃ Categoria: " + (cat != null ? cat.getCategoria() : "N/A"));
-                System.out.println("  ┃ Data: " + s.getDt_solicitada().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
-                if (s.getStatus() != StatusSolicitacao.N1) {
-                    System.out.println("  ┃ Prioridade: " + (s.getPrioridade() != null ? s.getPrioridade().getPrioridade() : "N/A"));
+                System.out.println("  ┃ Data: " + solicitacao.getDt_solicitada().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")));
+                if (solicitacao.getStatus() != StatusSolicitacao.N1) {
+                    System.out.println("  ┃ Prioridade: " + (solicitacao.getPrioridade() != null ? solicitacao.getPrioridade().getPrioridade() : "N/A"));
 
-                    if (s.getDt_prazo() != null) {
-                        System.out.println("  ┃ Prazo:      " + Cores.VERDE + s.getDt_prazo().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + Cores.RESET);
+                    if (solicitacao.getDt_prazo() != null) {
+                        System.out.println("  ┃ Prazo:      " + Cores.VERDE + solicitacao.getDt_prazo().format(java.time.format.DateTimeFormatter.ofPattern("dd/MM/yyyy")) + Cores.RESET);
                     }
 
-                    if (s.getObservacao() != null && !s.getObservacao().isBlank()) {
-                        System.out.println("  ┃ Observação: " + Cores.AMARELO + s.getObservacao() + Cores.RESET);
+                    if (solicitacao.getObservacao() != null && !solicitacao.getObservacao().isBlank()) {
+                        System.out.println("  ┃ Observação: " + Cores.AMARELO + solicitacao.getObservacao() + Cores.RESET);
                     }
                 }
 
-                System.out.println("  ┃ Descrição:  " + s.getDescricao());
+                System.out.println("  ┃ Descrição:  " + solicitacao.getDescricao());
                 System.out.println("  ┗" + Cores.CIANO + "────────────────────────────────────────────────────────" + Cores.RESET);
             }
 
@@ -172,13 +172,13 @@ public class SolicitacaoCidadaoView {
         return sc.nextLine();
     }
 
-    private void exibirResumo(String tit, String desc, Categoria cat, Endereco end, boolean anon) {
+    private void exibirResumo(String titulo, String descricao, Categoria categoria, Endereco endereco, boolean anonima) {
         System.out.println("\n" + Cores.CIANO + "  ┏━ REVISÃO DOS DADOS ━━━━━━━━━━━━━━━━━━━━━━━");
-        System.out.println("  ┃ Título: " + tit);
-        System.out.println("  ┃ Categoria: " + cat.getCategoria());
-        System.out.println("  ┃ Descrição: " + desc);
-        System.out.println("  ┃ Local: " + end.getLogradouro() + ", " + end.getNumero() + " - " + end.getBairro());
-        System.out.println("  ┃ Identidade: " + (anon ? "Anônima" : "Identificada"));
+        System.out.println("  ┃ Título: " + titulo);
+        System.out.println("  ┃ Categoria: " + categoria.getCategoria());
+        System.out.println("  ┃ Descrição: " + descricao);
+        System.out.println("  ┃ Local: " + endereco.getLogradouro() + ", " + endereco.getNumero() + " - " + endereco.getBairro());
+        System.out.println("  ┃ Identidade: " + (anonima ? "Anônima" : "Identificada"));
         System.out.println("  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━" + Cores.RESET);
     }
 }

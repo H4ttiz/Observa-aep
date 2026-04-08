@@ -5,6 +5,7 @@ import br.com.observaacao.service.endereco.ServiceEndereco;
 import br.com.observaacao.service.solicitacao.ServiceSolicitacao;
 import br.com.observaacao.util.Cores;
 import br.com.observaacao.util.Loading;
+import br.com.observaacao.view.atendente.MenuAtendenteView;
 import br.com.observaacao.view.cidadao.MenuCidadaoView;
 import br.com.observaacao.dto.usuario.UsuarioCadastroDto;
 import br.com.observaacao.dto.usuario.UsuarioLoginDto;
@@ -129,7 +130,8 @@ public class AuthView {
             case C -> new MenuCidadaoView(serviceEndereco, serviceSolicitacao, serviceCategoria)
                     .menu(usuario);
 
-            case S -> System.out.println(Cores.AMARELO + "\n  [!] Módulo Servidor em desenvolvimento." + Cores.RESET);
+            case S -> new MenuAtendenteView(serviceSolicitacao,service,serviceEndereco)
+                    .menu(usuario);
 
             case G -> new MenuGestorView(serviceSolicitacao,service,serviceEndereco)
                     .menu(usuario);

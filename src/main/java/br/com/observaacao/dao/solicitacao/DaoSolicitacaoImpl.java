@@ -205,16 +205,16 @@ public class DaoSolicitacaoImpl implements DaoSolicitacao {
     }
 
     @Override
-    public List<Solicitacao> buscarSolicitacaoEspecifica(StatusSolicitacao statusSolicitacao) {
-        String sql = "SELECT * FROM " + TABELA + " WHERE status = ?";
+    public List<Solicitacao> listaPorAtendente(Long idAtendente) {
+
+        String sql = "SELECT * FROM " + TABELA + " WHERE id_atendente = ? ORDER BY data_prazo ASC";
         List<Solicitacao> solicitacoes = new ArrayList<>();
 
         try (
                 Connection conn = ConnectionFactory.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)
         ) {
-
-            stmt.setString(1, statusSolicitacao.name());
+            stmt.setLong(1, idAtendente);
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {
@@ -226,6 +226,29 @@ public class DaoSolicitacaoImpl implements DaoSolicitacao {
 
         } catch (SQLException e) {
             throw new RuntimeException("Não foi possível carregar seu histórico de solicitações agora. (Status 500 - Erro no Servidor)");
+        }
+    }
+
+    @Override
+    public List<Solicitacao> buscarSolicitacaoEspecifica(StatusSolicitacao statusSolicitacao) {
+        String sql = "SELECT * FROM " + TABELA + " WHERE status = ? ORDER BY data_prazo ASC";
+        List<Solicitacao> solicitacoes = new ArrayList<>();
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setString(1, statusSolicitacao.name());
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    solicitacoes.add(map(rs));
+                }
+            }
+            return solicitacoes;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao filtrar solicitações por prazo.");
         }
     }
 }

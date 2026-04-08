@@ -141,6 +141,13 @@ public class ServiceSolicitacao {
         return daoSolicitacao.listaPorUsuario(idUsuario);
     }
 
+    public List<Solicitacao> buscarPorAtendente(Long idAtendente) {
+        if (idAtendente == null) {
+            throw new RuntimeException("Erro de identificação: Usuário inválido.");
+        }
+        return daoSolicitacao.listaPorAtendente(idAtendente);
+    }
+
     public List<Solicitacao> buscarSolicitacaoPendente() {
         try {
             List<Solicitacao> solicitacoes = daoSolicitacao.buscarSolicitacaoEspecifica(StatusSolicitacao.N1);
