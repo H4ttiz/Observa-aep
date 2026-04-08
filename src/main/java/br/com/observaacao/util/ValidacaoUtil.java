@@ -1,6 +1,6 @@
 package br.com.observaacao.util;
 
-import br.com.observaacao.model.usuario.TipoUsuario;
+import br.com.observaacao.model.enums.TipoUsuario;
 import br.com.observaacao.model.usuario.Usuario;
 
 public class ValidacaoUtil {

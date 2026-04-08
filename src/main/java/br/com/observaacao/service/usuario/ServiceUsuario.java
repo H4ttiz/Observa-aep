@@ -3,8 +3,9 @@ package br.com.observaacao.service.usuario;
 import br.com.observaacao.dao.usuario.DaoUsuario;
 import br.com.observaacao.dto.usuario.UsuarioCadastroDto;
 import br.com.observaacao.dto.usuario.UsuarioLoginDto;
-import br.com.observaacao.model.usuario.TipoUsuario;
+import br.com.observaacao.model.enums.TipoUsuario;
 import br.com.observaacao.model.usuario.Usuario;
+import br.com.observaacao.util.CpfUtil;
 import br.com.observaacao.util.EmailUtil;
 import br.com.observaacao.util.SenhaUtil;
 
@@ -23,13 +24,23 @@ public class ServiceUsuario {
             throw new RuntimeException("Email inválido");
         }
 
-        Usuario existente = daoUsuario.buscarPorEmail(dto.email());
+        if (!CpfUtil.validaCpf(dto.cpf().replaceAll("\\D", ""))) {
+            throw new RuntimeException("CPF inválido");
+        }
+
+        Usuario cpfJaCadastrado =  daoUsuario.buscarPorCpf(dto.cpf().replaceAll("\\D", ""));
+
+        Usuario emailJaCadastrado = daoUsuario.buscarPorEmail(dto.email());
 
         if (dto.nome().isEmpty()){
             throw new RuntimeException("Nome não pode ser vazio!");
         }
 
-        if (existente != null) {
+        if (cpfJaCadastrado != null) {
+            throw new RuntimeException("CPF já cadastrado");
+        }
+
+        if (emailJaCadastrado != null) {
             throw new RuntimeException("Email já cadastrado");
         }
 
@@ -42,7 +53,9 @@ public class ServiceUsuario {
         TipoUsuario tipo = tipoPassado == null ? TipoUsuario.C : tipoPassado;
 
         Usuario usuario = new Usuario(
+                null,
                 dto.nome(),
+                dto.cpf().replaceAll("\\D", ""),
                 dto.email(),
                 senhaHash,
                 tipo

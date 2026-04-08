@@ -14,16 +14,13 @@ public class ServiceCategoria {
 
     private final DaoCategoria daoCategoria;
     private final DaoUsuario daoUsuario;
-    private Usuario usuario;
 
-
-    public ServiceCategoria(DaoCategoria daoCategoria, DaoUsuario daoUsuario, Usuario usuario) {
+    public ServiceCategoria(DaoCategoria daoCategoria, DaoUsuario daoUsuario) {
         this.daoCategoria = daoCategoria;
         this.daoUsuario = daoUsuario;
-        this.usuario = usuario;
     }
 
-    public Categoria cadastroNormal(Categoria novaCategoria, Long id) {
+    public Categoria cadastroNormal(Categoria novaCategoria, Long id, Usuario usuario) {
 
         usuario = daoUsuario.buscarPorId(id);
         if (ValidacaoUtil.verificarGestor(usuario)){
@@ -36,8 +33,7 @@ public class ServiceCategoria {
 
         Categoria categoria = new Categoria(
                 novaCategoria.getCategoria(),
-                novaCategoria.getDescricao(),
-                novaCategoria.getNivelPrioridade()
+                novaCategoria.getDescricao()
         );
 
         daoCategoria.salvar(categoria);
@@ -46,12 +42,7 @@ public class ServiceCategoria {
     }
 
 
-    public Categoria buscaDeId(Long idCategoria, Long idUsuario){
-        usuario = daoUsuario.buscarPorId(idUsuario);
-
-        if (ValidacaoUtil.verificarGestor(usuario)){
-            throw new RuntimeException("usuario não tem permissão para cadastrar na categoria");
-        }
+    public Categoria buscaDeId(Long idCategoria){
 
         Categoria categoria = daoCategoria.buscarPorId(idCategoria);
 
@@ -59,12 +50,7 @@ public class ServiceCategoria {
     }
 
 
-    public List<Categoria> listarTodos(Long id){
-        usuario = daoUsuario.buscarPorId(id);
-
-        if (ValidacaoUtil.verificarGestor(usuario)){
-            throw new RuntimeException("usuario não tem permissão para cadastrar na categoria");
-        }
+    public List<Categoria> listarTodos(){
 
         List<Categoria> categorias = daoCategoria.listarTodos();
 
@@ -72,8 +58,16 @@ public class ServiceCategoria {
 
     }
 
+    public boolean categoriaExiste(Long id) {
 
-    public Categoria atualizarCategoria(Categoria categoria, Long id){
+        if (id == null) {
+            throw new RuntimeException("ID não pode ser nulo");
+        }
+
+        return daoCategoria.buscarPorId(id) != null;
+    }
+
+    public Categoria atualizarCategoria(Categoria categoria, Long id, Usuario usuario){
         usuario = daoUsuario.buscarPorId(id);
 
         if (ValidacaoUtil.verificarGestor(usuario)){
@@ -85,7 +79,7 @@ public class ServiceCategoria {
         return categoria;
     }
 
-    public Categoria deletarCategoria(Long id){
+    public Categoria deletarCategoria(Long id, Usuario usuario){
         usuario = daoUsuario.buscarPorId(id);
         if (ValidacaoUtil.verificarGestor(usuario)){
             throw new RuntimeException("usuario não tem permissão para cadastrar na categoria");

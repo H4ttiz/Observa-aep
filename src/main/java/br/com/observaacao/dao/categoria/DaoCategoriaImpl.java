@@ -2,8 +2,6 @@ package br.com.observaacao.dao.categoria;
 
 import br.com.observaacao.config.ConnectionFactory;
 import br.com.observaacao.model.categoria.Categoria;
-import br.com.observaacao.model.categoria.NivelPrioridade;
-import br.com.observaacao.model.usuario.Usuario;
 
 
 import java.sql.Connection;
@@ -14,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
-public class DaoCategoriaimpl implements DaoCategoria{
+public class DaoCategoriaImpl implements DaoCategoria{
 
     private static final String TABELA = "categorias";
 
@@ -23,7 +21,6 @@ public class DaoCategoriaimpl implements DaoCategoria{
                 rs.getLong("id"),
                 rs.getString("categoria"),
                 rs.getString("descricao"),
-                NivelPrioridade.valueOf(rs.getString("nivel_Prioridade")),
                 rs.getObject("data_criacao", LocalDateTime.class),
                 rs.getBoolean("ativo")
         );
@@ -34,7 +31,7 @@ public class DaoCategoriaimpl implements DaoCategoria{
     public void salvar(Categoria categoria) {
         String sql = """
             INSERT INTO\s""" + TABELA + """
-            (categoria, descricao, nivel_Prioridade, data_Criacao, ativo)
+            (categoria, descricao, data_Criacao, ativo)
             VALUES (?, ?, ?, ?, ?)
             """;
 
@@ -48,7 +45,6 @@ public class DaoCategoriaimpl implements DaoCategoria{
 
             stmt.setString(1, categoria.getCategoria());
             stmt.setString(2, categoria.getDescricao());
-            stmt.setString(3, categoria.getNivelPrioridade().name());
             stmt.setObject(4, categoria.getDataCriacao());
             stmt.setBoolean(5, categoria.isAtivo());
 
@@ -63,7 +59,7 @@ public class DaoCategoriaimpl implements DaoCategoria{
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar usuário", e);
+            throw new RuntimeException("Ocorreu uma falha ao registrar a categoria. (Status 500 - Erro no Servidor)");
         }
     }
 
@@ -83,7 +79,7 @@ public class DaoCategoriaimpl implements DaoCategoria{
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar usuário por id", e);
+            throw new RuntimeException("Não foi possível localizar esta categoria. O sistema pode estar em manutenção.");
         }
     }
 
@@ -107,7 +103,7 @@ public class DaoCategoriaimpl implements DaoCategoria{
             return categorias;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar usuários", e);
+            throw new RuntimeException("Erro ao carregar lista de categorias. Tente novamente em instantes.");
         }
     }
 
@@ -117,7 +113,6 @@ public class DaoCategoriaimpl implements DaoCategoria{
             UPDATE\s""" + TABELA + """
             SET categoria = ?,
                 descricao = ?,
-                nivel_Prioridade = ?,
                 ativo = ?
             WHERE id = ?
             """;
@@ -129,20 +124,17 @@ public class DaoCategoriaimpl implements DaoCategoria{
 
             stmt.setString(1, categoria.getCategoria());
             stmt.setString(2, categoria.getDescricao());
-            stmt.setString(3, categoria.getNivelPrioridade().name());
             stmt.setBoolean(4, categoria.isAtivo());
             stmt.setLong(5, categoria.getId());
 
             int linhas = stmt.executeUpdate();
 
             if (linhas == 0) {
-                throw new RuntimeException(
-                        "Nenhum usuário encontrado com id: " + categoria.getId()
-                );
+                throw new RuntimeException("A categoria solicitada não foi encontrada para atualização.");
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar categoria", e);
+            throw new RuntimeException("Falha interna ao atualizar categoria. Aguarde a manutenção do servidor.");
         }
     }
 
@@ -160,13 +152,11 @@ public class DaoCategoriaimpl implements DaoCategoria{
             int linhas = stmt.executeUpdate();
 
             if (linhas == 0) {
-                throw new RuntimeException(
-                        "Nenhum usuário encontrado com id: " + id
-                );
+                throw new RuntimeException("Operação inválida: Categoria inexistente.");
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao desativar usuário", e);
+            throw new RuntimeException("Serviço temporariamente indisponível. Erro 500.");
         }
     }
 }

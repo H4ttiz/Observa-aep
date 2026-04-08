@@ -50,7 +50,7 @@ public class DaoEnderecoImpl implements DaoEndereco {
             stmt.setString(4, endereco.getComplemento());
             stmt.setString(5, endereco.getBairro());
             stmt.setString(6, endereco.getCidade());
-            stmt.setString(6, endereco.getEstado());
+            stmt.setString(7, endereco.getEstado());
 
             stmt.executeUpdate();
 
@@ -60,9 +60,8 @@ public class DaoEnderecoImpl implements DaoEndereco {
                     endereco.setId(idGerado);
                 }
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar usuário", e);
+            throw new RuntimeException("Não foi possível salvar os dados de endereço. (Status 500 - Erro de Conexão)");
         }
     }
 
@@ -83,7 +82,7 @@ public class DaoEnderecoImpl implements DaoEndereco {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar usuário por id", e);
+            throw new RuntimeException("Erro ao localizar endereço. O servidor pode estar em manutenção.");
         }
     }
 
@@ -106,7 +105,7 @@ public class DaoEnderecoImpl implements DaoEndereco {
             return endereco;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar usuários", e);
+            throw new RuntimeException("Falha ao carregar lista de endereços. Tente novamente em instantes.");
         }
     }
 
@@ -143,13 +142,11 @@ public class DaoEnderecoImpl implements DaoEndereco {
             int linhas = stmt.executeUpdate();
 
             if (linhas == 0) {
-                throw new RuntimeException(
-                        "Nenhum endereço encontrado com id: " + endereco.getId()
-                );
+                throw new RuntimeException("Não foi possível atualizar: Endereço não encontrado no sistema.");
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar endereço", e);
+            throw new RuntimeException("Erro interno no servidor ao atualizar o endereço. Aguarde a manutenção.");
         }
     }
 
@@ -168,13 +165,11 @@ public class DaoEnderecoImpl implements DaoEndereco {
             int linhas = stmt.executeUpdate();
 
             if (linhas == 0) {
-                throw new RuntimeException(
-                        "Nenhum endereço encontrado com id: " + id
-                );
+                throw new RuntimeException("O endereço solicitado não foi localizado para desativação.");
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao desativar endereço", e);
+            throw new RuntimeException("Serviço de banco de dados indisponível no momento. Erro 500.");
         }
     }
 
@@ -187,15 +182,12 @@ public class DaoEnderecoImpl implements DaoEndereco {
                 Connection conn = ConnectionFactory.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)
         ) {
-
             stmt.setString(1, cep);
-
             try (ResultSet rs = stmt.executeQuery()) {
                 return rs.next() ? map(rs) : null;
             }
-
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar endereço por cep", e);
+            throw new RuntimeException("Erro ao buscar CEP. Verifique sua conexão com o servidor.");
         }
     }
 }

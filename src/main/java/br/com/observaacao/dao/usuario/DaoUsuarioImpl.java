@@ -1,6 +1,6 @@
 package br.com.observaacao.dao.usuario;
 
-import br.com.observaacao.model.usuario.TipoUsuario;
+import br.com.observaacao.model.enums.TipoUsuario;
 import br.com.observaacao.config.ConnectionFactory;
 import br.com.observaacao.model.usuario.Usuario;
 
@@ -20,7 +20,9 @@ public class DaoUsuarioImpl implements DaoUsuario {
     private Usuario map(ResultSet rs) throws SQLException {
         return new Usuario(
                 rs.getLong("id"),
+                rs.getObject("criado_por", Long.class),
                 rs.getString("nome"),
+                rs.getString("cpf"),
                 rs.getString("email"),
                 rs.getString("senha"),
                 TipoUsuario.valueOf(rs.getString("tipo_usuario")),
@@ -34,8 +36,8 @@ public class DaoUsuarioImpl implements DaoUsuario {
 
         String sql = """
             INSERT INTO\s""" + TABELA + """
-            (nome, email, senha, tipo_usuario, data_criacao, ativo)
-            VALUES (?, ?, ?, ?, ?, ?)
+            (criado_por, nome, cpf, email, senha, tipo_usuario, data_criacao, ativo)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """;
 
         try (
@@ -45,13 +47,14 @@ public class DaoUsuarioImpl implements DaoUsuario {
                         PreparedStatement.RETURN_GENERATED_KEYS
                 )
         ) {
-
-            stmt.setString(1, usuario.getNome());
-            stmt.setString(2, usuario.getEmail());
-            stmt.setString(3, usuario.getSenha());
-            stmt.setString(4, usuario.getTipoUsuario().name());
-            stmt.setObject(5, usuario.getDataCriacao());
-            stmt.setBoolean(6, usuario.isAtivo());
+            stmt.setObject(1, usuario.getCriadoPor());
+            stmt.setString(2, usuario.getNome());
+            stmt.setString(3, usuario.getCpf());
+            stmt.setString(4, usuario.getEmail());
+            stmt.setString(5, usuario.getSenha());
+            stmt.setString(6, usuario.getTipoUsuario().name());
+            stmt.setObject(7, usuario.getDataCriacao());
+            stmt.setBoolean(8, usuario.isAtivo());
 
             stmt.executeUpdate();
 
@@ -63,7 +66,7 @@ public class DaoUsuarioImpl implements DaoUsuario {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao salvar usuário", e);
+            throw new RuntimeException("Não foi possível concluir seu cadastro. (Erro 500 - Falha no Servidor)");
         }
     }
 
@@ -84,7 +87,7 @@ public class DaoUsuarioImpl implements DaoUsuario {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar usuário por id", e);
+            throw new RuntimeException("Erro ao carregar dados do usuário. O serviço pode estar temporariamente indisponível.");
         }
     }
 
@@ -107,7 +110,7 @@ public class DaoUsuarioImpl implements DaoUsuario {
             return usuarios;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar usuários", e);
+            throw new RuntimeException("Não foi possível recuperar a lista de usuários. Aguarde a manutenção do sistema.");
         }
     }
 
@@ -139,13 +142,11 @@ public class DaoUsuarioImpl implements DaoUsuario {
             int linhas = stmt.executeUpdate();
 
             if (linhas == 0) {
-                throw new RuntimeException(
-                        "Nenhum usuário encontrado com id: " + usuario.getId()
-                );
+                throw new RuntimeException("Os dados não puderam ser atualizados: Usuário não localizado.");
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar usuário", e);
+            throw new RuntimeException("Erro interno ao atualizar perfil. Tente novamente em alguns minutos.");
         }
     }
 
@@ -164,13 +165,11 @@ public class DaoUsuarioImpl implements DaoUsuario {
             int linhas = stmt.executeUpdate();
 
             if (linhas == 0) {
-                throw new RuntimeException(
-                        "Nenhum usuário encontrado com id: " + id
-                );
+                throw new RuntimeException("Falha na operação: Este perfil de usuário já não existe ou já está inativo.");
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao desativar usuário", e);
+            throw new RuntimeException("Erro no servidor ao tentar desativar conta. (Status 500)");
         }
     }
 
@@ -190,7 +189,27 @@ public class DaoUsuarioImpl implements DaoUsuario {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar usuário por id", e);
+            throw new RuntimeException("Falha na autenticação: Erro ao verificar credenciais no servidor.");
+        }
+    }
+
+    @Override
+    public Usuario buscarPorCpf(String cpf) {
+        String sql = "SELECT * FROM " + TABELA + " WHERE cpf = ?";
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setString(1, cpf);
+
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? map(rs) : null;
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao validar CPF. Por favor, verifique sua conexão ou tente mais tarde.");
         }
     }
 }

@@ -1,9 +1,10 @@
-package br.com.observaacao.model.usuario;
+package br.com.observaacao.model.enums;
 
 public enum TipoUsuario {
     C("Cidadão"),
     S("Servidor Público"),
-    G("Gestor");
+    G("Gestor"),
+    A("Administrador");
 
     private String descricao;
 
