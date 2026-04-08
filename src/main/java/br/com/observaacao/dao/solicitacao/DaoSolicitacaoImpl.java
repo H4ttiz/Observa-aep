@@ -205,8 +205,8 @@ public class DaoSolicitacaoImpl implements DaoSolicitacao {
     }
 
     @Override
-    public List<Solicitacao> buscarSolicitacaoPendente() {
-        String sql = "SELECT * FROM " + TABELA + " WHERE status = 'N1'";
+    public List<Solicitacao> buscarSolicitacaoEspecifica(StatusSolicitacao statusSolicitacao) {
+        String sql = "SELECT * FROM " + TABELA + " WHERE status = ?";
         List<Solicitacao> solicitacoes = new ArrayList<>();
 
         try (
@@ -214,6 +214,7 @@ public class DaoSolicitacaoImpl implements DaoSolicitacao {
                 PreparedStatement stmt = conn.prepareStatement(sql)
         ) {
 
+            stmt.setString(1, statusSolicitacao.name());
 
             try (ResultSet rs = stmt.executeQuery()) {
                 while (rs.next()) {

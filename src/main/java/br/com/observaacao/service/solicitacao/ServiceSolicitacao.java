@@ -1,8 +1,10 @@
 package br.com.observaacao.service.solicitacao;
 
 import br.com.observaacao.dao.solicitacao.DaoSolicitacao;
+import br.com.observaacao.model.enums.StatusSolicitacao;
 import br.com.observaacao.model.solicitacao.Solicitacao;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -141,13 +143,72 @@ public class ServiceSolicitacao {
 
     public List<Solicitacao> buscarSolicitacaoPendente() {
         try {
-            List<Solicitacao> solicitacoes = daoSolicitacao.buscarSolicitacaoPendente();
+            List<Solicitacao> solicitacoes = daoSolicitacao.buscarSolicitacaoEspecifica(StatusSolicitacao.N1);
 
             if (solicitacoes == null) {
                 throw new RuntimeException("Não foi possível carregar as pendências. Tente novamente mais tarde.");
             }
 
             return solicitacoes;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Falha ao buscar solicitações pendentes: " + e.getMessage());
+        }
+    }
+
+    public List<Solicitacao> buscarSolicitacaoAguardandoAtendimento() {
+        try {
+            List<Solicitacao> solicitacoes = daoSolicitacao.buscarSolicitacaoEspecifica(StatusSolicitacao.N3);
+
+            if (solicitacoes == null) {
+                throw new RuntimeException("Não foi possível carregar as pendências. Tente novamente mais tarde.");
+            }
+
+            return solicitacoes;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Falha ao buscar solicitações pendentes: " + e.getMessage());
+        }
+    }
+
+    public List<Solicitacao> buscarSolicitacaoEmAndamento() {
+        try {
+            List<Solicitacao> solicitacoes = daoSolicitacao.buscarSolicitacaoEspecifica(StatusSolicitacao.N4);
+
+            if (solicitacoes == null) {
+                throw new RuntimeException("Não foi possível carregar as Em Andamento. Tente novamente mais tarde.");
+            }
+
+            return solicitacoes;
+
+        } catch (Exception e) {
+            throw new RuntimeException("Falha ao buscar solicitações Em Andamento: " + e.getMessage());
+        }
+    }
+
+
+    public List<Solicitacao> buscarSolicitacaoAtrasadas() {
+
+        try {
+            List<Solicitacao> solicitacoes = daoSolicitacao.listarTodos();
+            List<Solicitacao> solicitacaosAtrasadas = new ArrayList<>();
+
+            if (solicitacoes == null) {
+                throw new RuntimeException("Não foi possível carregar as pendências. Tente novamente mais tarde.");
+            }
+
+            for (Solicitacao solicitacao : solicitacoes) {
+
+                if (solicitacao.getDt_prazo() != null &&
+                        solicitacao.getDt_prazo().isBefore(LocalDateTime.now()) &&
+                                (solicitacao.getStatus() == StatusSolicitacao.N4 ||
+                                 solicitacao.getStatus() == StatusSolicitacao.N3)) {
+
+                    solicitacaosAtrasadas.add(solicitacao);
+                }
+            }
+
+            return solicitacaosAtrasadas;
 
         } catch (Exception e) {
             throw new RuntimeException("Falha ao buscar solicitações pendentes: " + e.getMessage());
