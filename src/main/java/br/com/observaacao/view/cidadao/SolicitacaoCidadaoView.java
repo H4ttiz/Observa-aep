@@ -3,12 +3,15 @@ package br.com.observaacao.view.cidadao;
 import br.com.observaacao.model.categoria.Categoria;
 import br.com.observaacao.model.endereco.Endereco;
 import br.com.observaacao.model.enums.StatusSolicitacao;
+import br.com.observaacao.model.historico_movimentacao_solicitacao.HistoricoMovimentacaoSolicitacao;
 import br.com.observaacao.model.solicitacao.Solicitacao;
 import br.com.observaacao.model.usuario.Usuario;
 import br.com.observaacao.service.categoria.ServiceCategoria;
 import br.com.observaacao.service.endereco.ServiceEndereco;
+import br.com.observaacao.service.historico_movimentacao_solicitacao.ServiceHistoricoMovimentacaoSolicitacao;
 import br.com.observaacao.service.solicitacao.ServiceSolicitacao;
 import br.com.observaacao.util.Cores;
+import br.com.observaacao.util.DataUtil;
 import br.com.observaacao.util.Loading;
 
 import java.time.LocalDateTime;
@@ -21,11 +24,14 @@ public class SolicitacaoCidadaoView {
     private final ServiceEndereco serviceEndereco;
     private final ServiceSolicitacao serviceSolicitacao;
     private final ServiceCategoria serviceCategoria;
+    private final ServiceHistoricoMovimentacaoSolicitacao serviceHistorico;
 
-    public SolicitacaoCidadaoView(ServiceEndereco serviceEndereco, ServiceSolicitacao serviceSolicitacao, ServiceCategoria serviceCategoria) {
+    public SolicitacaoCidadaoView(ServiceEndereco serviceEndereco, ServiceSolicitacao serviceSolicitacao,
+                                  ServiceCategoria serviceCategoria,  ServiceHistoricoMovimentacaoSolicitacao serviceHistorico) {
         this.serviceEndereco = serviceEndereco;
         this.serviceSolicitacao = serviceSolicitacao;
         this.serviceCategoria = serviceCategoria;
+        this.serviceHistorico = serviceHistorico;
     }
 
     public void criarSolicitacao(Usuario usuario) {
@@ -166,6 +172,63 @@ public class SolicitacaoCidadaoView {
         }
     }
 
+    public void linhaDoTempoSolicitacao(Usuario usuario) {
+        try {
+            System.out.println("\n" + Cores.AZUL + "  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+            System.out.println("  ┃        ACOMPANHAR EVOLUÇÃO DO CHAMADO       ┃");
+            System.out.println("  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛" + Cores.RESET);
+
+            System.out.print("  ▸ Digite o ID da solicitação que deseja detalhar: ");
+            Long id = Long.parseLong(sc.nextLine());
+
+            Solicitacao solicitacao = serviceSolicitacao.buscarPorId(id);
+            if (solicitacao == null || !solicitacao.getId_solicitante().equals(usuario.getId())) {
+                System.out.println(Cores.VERMELHO + "    ⚠ Solicitação não encontrada ou acesso negado." + Cores.RESET);
+                return;
+            }
+
+            List<HistoricoMovimentacaoSolicitacao> historicos = serviceHistorico.listarPorSolicitacao(id);
+
+            System.out.println("\n  📌 " + Cores.CIANO + "RESUMO: " + solicitacao.getTitulo().toUpperCase() + Cores.RESET);
+            System.out.println("  " + Cores.CIANO + "─────────────────────────────────────────────" + Cores.RESET);
+
+            for (int i = 0; i < historicos.size(); i++) {
+                HistoricoMovimentacaoSolicitacao historico = historicos.get(i);
+                String dataFormatada = DataUtil.formatarDataHora(historico.getData_movimentacao());
+
+                boolean ehUltimo = (i == historicos.size() - 1);
+                String icone = ehUltimo ? "📍" : "🕒";
+                String corStatus = (historico.getStatus_atual() == StatusSolicitacao.N5) ? Cores.VERDE : Cores.AMARELO;
+
+                System.out.println("  " + icone + " " + Cores.CIANO + "[" + dataFormatada + "]" + Cores.RESET);
+                System.out.println("     Status: " + corStatus + historico.getStatus_atual().getStatus() + Cores.RESET);
+
+                if (historico.getComentario() != null && !historico.getComentario().isBlank()) {
+                    System.out.println("     Nota: " + Cores.RESET + "\"" + historico.getComentario() + "\"" + Cores.RESET);
+                }
+
+                if (!ehUltimo) {
+                    System.out.println("     " + Cores.CIANO + "┃" + Cores.RESET);
+                }
+            }
+
+            System.out.println("  " + Cores.CIANO + "─────────────────────────────────────────────" + Cores.RESET);
+
+            if (solicitacao.getStatus() == StatusSolicitacao.N5) {
+                System.out.println(Cores.VERDE + "  ✅ Chamado concluído! Obrigado por sua contribuição." + Cores.RESET);
+            } else {
+                System.out.println(Cores.CIANO + "  ℹ Estamos trabalhando para resolver sua solicitação." + Cores.RESET);
+            }
+
+            System.out.println("\n  Pressione ENTER para voltar...");
+            sc.nextLine();
+
+        } catch (NumberFormatException e) {
+            System.out.println(Cores.VERMELHO + "    ⚠ Digite um ID válido (número)." + Cores.RESET);
+        } catch (Exception e) {
+            System.out.println(Cores.VERMELHO + "    ⚠ " + e.getMessage() + Cores.RESET);
+        }
+    }
 
     private String lerComplemento() {
         System.out.print("    Complemento: ");

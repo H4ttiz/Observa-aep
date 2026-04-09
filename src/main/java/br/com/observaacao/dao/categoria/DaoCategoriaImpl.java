@@ -28,7 +28,7 @@ public class DaoCategoriaImpl implements DaoCategoria{
 
 
     @Override
-    public void salvar(Categoria categoria) {
+    public Long salvar(Categoria categoria) {
         String sql = """
             INSERT INTO\s""" + TABELA + """
             (categoria, descricao, data_Criacao, ativo)
@@ -55,8 +55,10 @@ public class DaoCategoriaImpl implements DaoCategoria{
                 if (rs.next()) {
                     Long idGerado = rs.getLong(1);
                     categoria.setId(idGerado);
+                    return idGerado;
                 }
             }
+            return null;
 
         } catch (SQLException e) {
             throw new RuntimeException("Ocorreu uma falha ao registrar a categoria. (Status 500 - Erro no Servidor)");

@@ -1,21 +1,35 @@
 package br.com.observaacao.view.gestor;
 
+import br.com.observaacao.model.endereco.Endereco;
+import br.com.observaacao.model.historico_movimentacao_solicitacao.HistoricoMovimentacaoSolicitacao;
 import br.com.observaacao.model.solicitacao.Solicitacao;
 import br.com.observaacao.model.usuario.Usuario;
+import br.com.observaacao.service.endereco.ServiceEndereco;
+import br.com.observaacao.service.historico_movimentacao_solicitacao.ServiceHistoricoMovimentacaoSolicitacao;
 import br.com.observaacao.service.solicitacao.ServiceSolicitacao;
 import br.com.observaacao.service.usuario.ServiceUsuario;
 import br.com.observaacao.util.Cores;
+import br.com.observaacao.util.DataUtil;
 import br.com.observaacao.util.Loading;
 
 import java.util.List;
+import java.util.Scanner;
+
 
 public class MonitoramentoGestorView {
+    private final Scanner sc = new Scanner(System.in);
     private final ServiceSolicitacao serviceSolicitacao;
     private final ServiceUsuario serviceUsuario;
+    private final ServiceHistoricoMovimentacaoSolicitacao serviceHistorico;
+    private final ServiceEndereco serviceEndereco;
 
-    public MonitoramentoGestorView(ServiceSolicitacao serviceSolicitacao, ServiceUsuario serviceUsuario) {
+    public MonitoramentoGestorView(ServiceSolicitacao serviceSolicitacao, ServiceUsuario serviceUsuario,
+                                   ServiceHistoricoMovimentacaoSolicitacao serviceHistorico,
+                                   ServiceEndereco serviceEndereco) {
         this.serviceSolicitacao = serviceSolicitacao;
         this.serviceUsuario = serviceUsuario;
+        this.serviceHistorico = serviceHistorico;
+        this.serviceEndereco = serviceEndereco;
     }
 
     public void verAndamento() {
@@ -31,8 +45,8 @@ public class MonitoramentoGestorView {
             return;
         }
 
-        for (Solicitacao s : lista) {
-            imprimirCardComAtendente(s);
+        for (Solicitacao solicitacao : lista) {
+            imprimirCardComAtendente(solicitacao);
         }
     }
 
@@ -60,8 +74,67 @@ public class MonitoramentoGestorView {
             return;
         }
 
-        for (Solicitacao s : lista) {
-            imprimirCardMonitoramento(s, true);
+        for (Solicitacao solicitacao : lista) {
+            imprimirCardMonitoramento(solicitacao, true);
+        }
+    }
+
+    public void linhaDoTempoGestor() {
+        try {
+            System.out.println("\n" + Cores.AZUL + "  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+            System.out.println("  ┃          AUDITORIA DE MOVIMENTAÇÕES         ┃");
+            System.out.println("  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛" + Cores.RESET);
+
+            System.out.print("  ▸ Informe o ID da solicitação para auditoria: ");
+            Long id = Long.parseLong(sc.nextLine());
+
+            Solicitacao solicitacao = serviceSolicitacao.buscarPorId(id);
+            if (solicitacao == null) {
+                System.out.println(Cores.VERMELHO + "    ⚠ Solicitação #" + id + " não encontrada no sistema." + Cores.RESET);
+                return;
+            }
+
+            List<HistoricoMovimentacaoSolicitacao> historicos = serviceHistorico.listarPorSolicitacao(id);
+            Endereco endereco = serviceEndereco.buscarPorId(solicitacao.getId_endereco());
+            System.out.println("\n" + Cores.CIANO + "  [ DADOS DO CHAMADO ]" + Cores.RESET);
+            System.out.println("  📜 Título:   " + solicitacao.getTitulo().toUpperCase());
+            System.out.println("  📍 Local:    " + endereco.getLogradouro() + ", " + endereco.getNumero() + " - " + endereco.getBairro());
+            System.out.println("  📊 Status:   " + solicitacao.getStatus().getStatus());
+            System.out.println("  " + Cores.CIANO + "─────────────────────────────────────────────" + Cores.RESET);
+
+            for (int i = 0; i < historicos.size(); i++) {
+                HistoricoMovimentacaoSolicitacao historico = historicos.get(i);
+
+
+                Usuario responsavel = serviceUsuario.buscarPorId(historico.getId_responsavel());
+
+                String data = DataUtil.formatarDataHora(historico.getData_movimentacao());
+                String transicao = (historico.getStatus_anterior() != null)
+                        ? historico.getStatus_anterior().name() + " ➔ " + historico.getStatus_atual().name()
+                        : "Abertura do Chamado (Novo)";
+
+                System.out.println("  " + Cores.AMARELO + "● " + data + Cores.RESET);
+                System.out.println("    " + Cores.CIANO + "Op: " + Cores.RESET + transicao);
+                System.out.println("    " + Cores.CIANO + "Responsável: " + Cores.RESET + responsavel.getNome() + " (ID: " + responsavel.getId() + ")");
+
+                if (historico.getComentario() != null && !historico.getComentario().isBlank()) {
+                    System.out.println("    " + Cores.CIANO + "Justificativa: " + Cores.RESET + "\"" + historico.getComentario() + "\"");
+                }
+
+
+                if (i < historicos.size() - 1) {
+                    System.out.println("    " + Cores.AZUL + "│" + Cores.RESET);
+                }
+            }
+
+            System.out.println("  " + Cores.CIANO + "─────────────────────────────────────────────" + Cores.RESET);
+            System.out.println("\n  Pressione ENTER para retornar ao painel de controle...");
+            sc.nextLine();
+
+        } catch (NumberFormatException e) {
+            System.out.println(Cores.VERMELHO + "    ⚠ ID inválido." + Cores.RESET);
+        } catch (Exception e) {
+            System.out.println(Cores.VERMELHO + "    ⚠ Erro na auditoria: " + e.getMessage() + Cores.RESET);
         }
     }
 

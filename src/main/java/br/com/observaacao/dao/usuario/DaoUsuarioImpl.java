@@ -32,7 +32,7 @@ public class DaoUsuarioImpl implements DaoUsuario {
     }
 
     @Override
-    public void salvar(Usuario usuario) {
+    public Long salvar(Usuario usuario) {
 
         String sql = """
             INSERT INTO\s""" + TABELA + """
@@ -62,8 +62,10 @@ public class DaoUsuarioImpl implements DaoUsuario {
                 if (rs.next()) {
                     Long idGerado = rs.getLong(1);
                     usuario.setId(idGerado);
+                    return idGerado;
                 }
             }
+            return null;
 
         } catch (SQLException e) {
             throw new RuntimeException("Não foi possível concluir seu cadastro. (Erro 500 - Falha no Servidor)");

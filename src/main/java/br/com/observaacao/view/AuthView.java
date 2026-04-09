@@ -2,6 +2,7 @@ package br.com.observaacao.view;
 
 import br.com.observaacao.service.categoria.ServiceCategoria;
 import br.com.observaacao.service.endereco.ServiceEndereco;
+import br.com.observaacao.service.historico_movimentacao_solicitacao.ServiceHistoricoMovimentacaoSolicitacao;
 import br.com.observaacao.service.solicitacao.ServiceSolicitacao;
 import br.com.observaacao.util.Cores;
 import br.com.observaacao.util.Loading;
@@ -23,15 +24,18 @@ public class AuthView {
     private final ServiceEndereco serviceEndereco;
     private final ServiceSolicitacao serviceSolicitacao;
     private final ServiceCategoria serviceCategoria;
+    private final ServiceHistoricoMovimentacaoSolicitacao serviceHistorico;
 
     public AuthView(ServiceUsuario service,
                     ServiceEndereco serviceEndereco,
                     ServiceSolicitacao serviceSolicitacao,
-                    ServiceCategoria serviceCategoria) {
+                    ServiceCategoria serviceCategoria,
+                    ServiceHistoricoMovimentacaoSolicitacao serviceHistorico) {
         this.service = service;
         this.serviceEndereco = serviceEndereco;
         this.serviceSolicitacao = serviceSolicitacao;
         this.serviceCategoria = serviceCategoria;
+        this.serviceHistorico = serviceHistorico;
     }
 
     public void menuInicial() {
@@ -127,13 +131,13 @@ public class AuthView {
 
     private void redirecionarMenu(Usuario usuario) {
         switch (usuario.getTipoUsuario()) {
-            case C -> new MenuCidadaoView(serviceEndereco, serviceSolicitacao, serviceCategoria)
+            case C -> new MenuCidadaoView(serviceEndereco, serviceSolicitacao, serviceCategoria,serviceHistorico)
                     .menu(usuario);
 
             case S -> new MenuAtendenteView(serviceSolicitacao,service,serviceEndereco)
                     .menu(usuario);
 
-            case G -> new MenuGestorView(serviceSolicitacao,service,serviceEndereco)
+            case G -> new MenuGestorView(serviceSolicitacao,service,serviceEndereco,serviceHistorico)
                     .menu(usuario);
 
             case A -> System.out.println(Cores.AMARELO + "\n  [!] Módulo Administrador em desenvolvimento." + Cores.RESET);

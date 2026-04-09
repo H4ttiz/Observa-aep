@@ -57,7 +57,7 @@ public class DecisaoGestorView {
             solicitacao.setObservacao("- " +observacao + " - " + DataUtil.formatarDataHora(dataPrazo));
 
             Loading.executar("Processando aprovação e calculando cronograma");
-            serviceSolicitacao.atualizar(id, solicitacao);
+            serviceSolicitacao.atualizar(id, solicitacao, gestor);
 
             System.out.println(Cores.VERDE + "\n    ✔ Solicitação #" + id + " aprovada com sucesso!" + Cores.RESET);
             System.out.println("    📅 Prazo final definido para: " + DataUtil.formatarData(dataPrazo));
@@ -69,7 +69,7 @@ public class DecisaoGestorView {
         }
     }
 
-    public void rejeitar() {
+    public void rejeitar(Usuario gestor) {
         try {
             System.out.println("\n" + Cores.VERMELHO + "  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
             System.out.println("  ┃          REJEIÇÃO DE SOLICITAÇÃO            ┃");
@@ -92,7 +92,7 @@ public class DecisaoGestorView {
             solicitacao.setObservacao(motivo);
 
             Loading.executar("Registrando indeferimento no sistema");
-            serviceSolicitacao.atualizar(id, solicitacao);
+            serviceSolicitacao.atualizar(id, solicitacao, gestor);
 
             System.out.println(Cores.VERDE + "\n    ✔ Solicitação #" + id + " foi rejeitada com sucesso." + Cores.RESET);
             System.out.println("    📝 Motivo registrado: " + motivo);

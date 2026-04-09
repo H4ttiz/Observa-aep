@@ -7,7 +7,7 @@ import java.util.List;
 //Operações Genericas
 public interface DaoGenerico<T extends EntityGenerico>{
 
-    void salvar(T entidade);
+    Long salvar(T entidade);
 
     T buscarPorId(Long id);
 

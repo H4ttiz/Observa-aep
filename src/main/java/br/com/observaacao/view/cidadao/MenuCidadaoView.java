@@ -3,6 +3,7 @@ package br.com.observaacao.view.cidadao;
 import br.com.observaacao.model.usuario.Usuario;
 import br.com.observaacao.service.categoria.ServiceCategoria;
 import br.com.observaacao.service.endereco.ServiceEndereco;
+import br.com.observaacao.service.historico_movimentacao_solicitacao.ServiceHistoricoMovimentacaoSolicitacao;
 import br.com.observaacao.service.solicitacao.ServiceSolicitacao;
 import br.com.observaacao.util.Cores;
 import br.com.observaacao.util.CpfUtil;
@@ -17,13 +18,16 @@ public class MenuCidadaoView {
     private final ServiceEndereco serviceEndereco;
     private final ServiceSolicitacao serviceSolicitacao;
     private final ServiceCategoria serviceCategoria;
+    private final ServiceHistoricoMovimentacaoSolicitacao serviceHistorico;
 
     public MenuCidadaoView(ServiceEndereco serviceEndereco,
                            ServiceSolicitacao serviceSolicitacao,
-                           ServiceCategoria serviceCategoria) {
+                           ServiceCategoria serviceCategoria,
+                           ServiceHistoricoMovimentacaoSolicitacao serviceHistorico) {
         this.serviceEndereco = serviceEndereco;
         this.serviceSolicitacao = serviceSolicitacao;
         this.serviceCategoria = serviceCategoria;
+        this.serviceHistorico = serviceHistorico;
     }
 
     public void menu(Usuario usuario) {
@@ -37,6 +41,7 @@ public class MenuCidadaoView {
             System.out.println("  " + Cores.AZUL + "[ MENU PRINCIPAL ]" + Cores.RESET);
             System.out.println("  " + Cores.CIANO + "1." + Cores.RESET + " Criar Nova Solicitação");
             System.out.println("  " + Cores.CIANO + "2." + Cores.RESET + " Ver Minhas Solicitações");
+            System.out.println("  " + Cores.CIANO + "3." + Cores.RESET + " Ver Linha do Tempo da Solicitação");
             System.out.println("  " + Cores.CIANO + "0." + Cores.RESET + " Encerrar Sessão (Logout)");
             System.out.println(Cores.CIANO + "  ─────────────────────────────────────────────" + Cores.RESET);
 
@@ -53,14 +58,19 @@ public class MenuCidadaoView {
             switch (opcao) {
                 case 1 -> {
                     Loading.executar("Iniciando formulário");
-                    new SolicitacaoCidadaoView(serviceEndereco, serviceSolicitacao, serviceCategoria)
+                    new SolicitacaoCidadaoView(serviceEndereco, serviceSolicitacao, serviceCategoria,serviceHistorico)
                             .criarSolicitacao(usuario);
                 }
 
                 case 2 -> {
                     Loading.executar("Buscando registros");
-                    new SolicitacaoCidadaoView(serviceEndereco, serviceSolicitacao, serviceCategoria)
+                    new SolicitacaoCidadaoView(serviceEndereco, serviceSolicitacao, serviceCategoria,serviceHistorico)
                             .visualizarSolicitacao(usuario);
+                }
+                case 3 -> {
+                    Loading.executar("Buscando Linha do Tempo");
+                    new SolicitacaoCidadaoView(serviceEndereco, serviceSolicitacao, serviceCategoria,serviceHistorico)
+                            .linhaDoTempoSolicitacao(usuario);
                 }
 
                 case 0 -> {

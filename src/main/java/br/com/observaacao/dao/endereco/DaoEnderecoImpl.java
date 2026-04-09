@@ -28,7 +28,7 @@ public class DaoEnderecoImpl implements DaoEndereco {
     }
 
     @Override
-    public void salvar(Endereco endereco) {
+    public Long salvar(Endereco endereco) {
 
         String sql = """
             INSERT INTO\s""" + TABELA + """
@@ -58,8 +58,10 @@ public class DaoEnderecoImpl implements DaoEndereco {
                 if (rs.next()) {
                     Long idGerado = rs.getLong(1);
                     endereco.setId(idGerado);
+                    return idGerado;
                 }
             }
+            return null;
         } catch (SQLException e) {
             throw new RuntimeException("Não foi possível salvar os dados de endereço. (Status 500 - Erro de Conexão)");
         }

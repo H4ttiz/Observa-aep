@@ -61,7 +61,7 @@ CREATE TABLE public.historico_movimentacao_solicitacao (
     id_responsavel int8 NOT NULL,
     comentario TEXT NOT NULL,
     status_atual char(2) NOT NULL,
-    status_anterior char(2) NOT NULL,
+    status_anterior char(2) NULL,
     data_movimentacao timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
     CONSTRAINT historico_movimentacao_pk PRIMARY KEY (id),
     CONSTRAINT fk_historico_solicitacao FOREIGN KEY (id_solicitacao) REFERENCES public.solicitacoes(id),

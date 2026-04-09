@@ -17,19 +17,21 @@ public class DaoHistoricoMovimentacaoSolicitacaoImpl implements DaoHistoricoMovi
     private static final String TABELA = "historico_movimentacao_solicitacao";
 
     private HistoricoMovimentacaoSolicitacao map(ResultSet rs) throws SQLException {
+        String statusAnteriorStr = rs.getString("status_anterior");
+
         return new HistoricoMovimentacaoSolicitacao(
                 rs.getLong("id"),
                 rs.getLong("id_solicitacao"),
                 rs.getLong("id_responsavel"),
                 rs.getString("comentario"),
                 StatusSolicitacao.valueOf(rs.getString("status_atual")),
-                StatusSolicitacao.valueOf(rs.getString("status_anterior")),
+                statusAnteriorStr != null ? StatusSolicitacao.valueOf(statusAnteriorStr) : null,
                 rs.getObject("data_movimentacao", LocalDateTime.class)
         );
     }
 
     @Override
-    public void salvar(HistoricoMovimentacaoSolicitacao historico) {
+    public Long salvar(HistoricoMovimentacaoSolicitacao historico) {
 
         String sql = "INSERT INTO " + TABELA +
                 " (id_solicitacao, id_responsavel, comentario, status_atual, status_anterior) VALUES (?, ?, ?, ?, ?)";
@@ -44,16 +46,24 @@ public class DaoHistoricoMovimentacaoSolicitacaoImpl implements DaoHistoricoMovi
             stmt.setLong(1, historico.getId_solicitacao());
             stmt.setLong(2, historico.getId_responsavel());
             stmt.setString(3, historico.getComentario());
-            stmt.setString(4, historico.getStatus_atual().name()); // Alterado para .name() para consistência com enums
-            stmt.setString(5, historico.getStatus_anterior().name());
+            stmt.setString(4, historico.getStatus_atual().name());
+
+            if (historico.getStatus_anterior() != null) {
+                stmt.setString(5, historico.getStatus_anterior().name());
+            } else {
+                stmt.setNull(5, java.sql.Types.VARCHAR);
+            }
 
             stmt.executeUpdate();
 
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
-                    historico.setId(rs.getLong(1));
+                    Long idGerado = rs.getLong(1);
+                    historico.setId(idGerado);
+                    return idGerado;
                 }
             }
+            return null;
 
         } catch (SQLException e) {
             throw new RuntimeException("Não foi possível registrar a movimentação no histórico. Por favor, tente novamente mais tarde.");

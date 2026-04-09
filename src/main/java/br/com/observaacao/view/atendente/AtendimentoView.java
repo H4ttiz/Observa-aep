@@ -32,7 +32,7 @@ public class AtendimentoView {
         solicitacao.setId_atendente(atendente.getId());
         solicitacao.setStatus(StatusSolicitacao.N4);
 
-        serviceSolicitacao.atualizar(id, solicitacao);
+        serviceSolicitacao.atualizar(id, solicitacao, atendente);
 
         Loading.executar("Vinculando sua conta à solicitação #" + id);
         System.out.println(Cores.VERDE + "  ✔ Sucesso! Você agora é o responsável por esta demanda." + Cores.RESET);
@@ -52,7 +52,7 @@ public class AtendimentoView {
             Solicitacao solicitacao = serviceSolicitacao.buscarPorId(id);
             solicitacao.setObservacao(solicitacao.getObservacao() + "\n- " + novaObservacao + " - " + DataUtil.formatarDataHora(LocalDateTime.now()));
 
-            serviceSolicitacao.atualizar(id, solicitacao);
+            serviceSolicitacao.atualizar(id, solicitacao, atendente);
 
             Loading.executar("Salvando atualização no diário de bordo");
             System.out.println(Cores.VERDE + "  ✔ Observação registrada com sucesso!" + Cores.RESET);
@@ -73,7 +73,7 @@ public class AtendimentoView {
             solicitacao.setStatus(StatusSolicitacao.N5);
             solicitacao.setDt_finalizada(LocalDateTime.now());
             solicitacao.setObservacao(solicitacao.getObservacao() + "\nFINALIZADO: " + parecer + " - " + DataUtil.formatarDataHora(LocalDateTime.now()));
-            serviceSolicitacao.atualizar(id, solicitacao);
+            serviceSolicitacao.atualizar(id, solicitacao, atendente);
 
             Loading.executar("Encerrando chamado e gerando protocolo de conclusão");
             System.out.println(Cores.VERDE + "  ✔ Solicitação #" + id + " marcada como FINALIZADA!" + Cores.RESET);

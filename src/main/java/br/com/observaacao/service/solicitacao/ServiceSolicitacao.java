@@ -1,8 +1,11 @@
 package br.com.observaacao.service.solicitacao;
 
+import br.com.observaacao.dao.historico_movimentacao_solicitacao.DaoHistoricoMovimentacaoSolicitacao;
 import br.com.observaacao.dao.solicitacao.DaoSolicitacao;
 import br.com.observaacao.model.enums.StatusSolicitacao;
 import br.com.observaacao.model.solicitacao.Solicitacao;
+import br.com.observaacao.model.usuario.Usuario;
+import br.com.observaacao.service.historico_movimentacao_solicitacao.ServiceHistoricoMovimentacaoSolicitacao;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -11,9 +14,11 @@ import java.util.List;
 public class ServiceSolicitacao {
 
     private final DaoSolicitacao daoSolicitacao;
+    private final ServiceHistoricoMovimentacaoSolicitacao serviceHistorico;
 
-    public ServiceSolicitacao(DaoSolicitacao daoSolicitacao) {
+    public ServiceSolicitacao(DaoSolicitacao daoSolicitacao, ServiceHistoricoMovimentacaoSolicitacao serviceHistorico) {
         this.daoSolicitacao = daoSolicitacao;
+        this.serviceHistorico = serviceHistorico;
     }
 
     public Solicitacao cadastrar(Solicitacao solicitacao) {
@@ -46,7 +51,15 @@ public class ServiceSolicitacao {
             throw new RuntimeException("Data de solicitação não pode ser nula");
         }
 
-        daoSolicitacao.salvar(solicitacao);
+        Long idGerado = daoSolicitacao.salvar(solicitacao);
+
+        serviceHistorico.addHistoricoMovimentacaoSolicitacao(
+                idGerado,
+                null,
+                StatusSolicitacao.N1,
+                solicitacao.getId_solicitante(),
+                "Solicitação registrada com sucesso no sistema."
+        );
         return solicitacao;
     }
 
@@ -69,7 +82,7 @@ public class ServiceSolicitacao {
         return daoSolicitacao.listarTodos();
     }
 
-    public Solicitacao atualizar(Long id, Solicitacao solicitacao) {
+    public Solicitacao atualizar(Long id, Solicitacao solicitacao, Usuario responsavel) {
 
         if (id == null) {
             throw new RuntimeException("O identificador da solicitação é obrigatório para realizar a busca.");
@@ -113,9 +126,19 @@ public class ServiceSolicitacao {
             throw new RuntimeException("Para concluir esta ação, é obrigatório registrar uma observação ou justificativa.");
         }
 
-        solicitacao.setId(id);
+        StatusSolicitacao statusAnterior = existente.getStatus();
 
+        solicitacao.setId(id);
         daoSolicitacao.atualizar(solicitacao);
+
+        serviceHistorico.addHistoricoMovimentacaoSolicitacao(
+                id,
+                statusAnterior,
+                solicitacao.getStatus(),
+                responsavel.getId(),
+                solicitacao.getObservacao()
+        );
+
         return solicitacao;
     }
 

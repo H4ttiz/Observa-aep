@@ -40,7 +40,7 @@ public class DaoSolicitacaoImpl implements DaoSolicitacao {
     }
 
     @Override
-    public void salvar(Solicitacao solicitacao) {
+    public Long salvar(Solicitacao solicitacao) {
         String sql = "INSERT INTO " + TABELA +
                 " (id_categoria, id_solicitante, id_atendente, id_endereco, status, prioridade, anonimo, titulo, descricao, data_solicitada, data_prazo, data_finalizada,observacao) " +
                 " VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,?)";
@@ -73,9 +73,12 @@ public class DaoSolicitacaoImpl implements DaoSolicitacao {
 
             try (ResultSet rs = stmt.getGeneratedKeys()) {
                 if (rs.next()) {
-                    solicitacao.setId(rs.getLong(1));
+                    Long idGerado = rs.getLong(1);
+                    solicitacao.setId(idGerado);
+                    return idGerado;
                 }
             }
+            return null;
 
         } catch (SQLException e) {
             throw new RuntimeException("O sistema encontrou uma falha ao processar sua solicitação. Por favor, tente novamente em instantes.");
