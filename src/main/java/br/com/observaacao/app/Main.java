@@ -37,8 +37,6 @@ public class Main{
         DaoCategoria daoCategoria = new DaoCategoriaImpl();
         ServiceCategoria serviceCategoria = new ServiceCategoria(daoCategoria,daoUsuario);
 
-
-
         // ===== VIEW =====
         AuthView authView = new AuthView(
                 serviceUsuario,
