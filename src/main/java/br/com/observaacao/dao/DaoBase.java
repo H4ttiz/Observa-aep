@@ -5,16 +5,12 @@ import br.com.observaacao.model.EntityGenerico;
 import java.util.List;
 
 //Operações Genericas
-public interface DaoGenerico<T extends EntityGenerico>{
+public interface DaoBase<T extends EntityGenerico>{
 
     Long salvar(T entidade);
 
     T buscarPorId(Long id);
 
     List<T> listarTodos();
-
-    void atualizar(T entidade);
-
-    void desativar(Long id);
 
 }
