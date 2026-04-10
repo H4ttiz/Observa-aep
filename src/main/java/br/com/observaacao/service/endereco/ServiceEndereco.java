@@ -48,46 +48,6 @@ public class ServiceEndereco {
         return daoEndereco.listarTodos();
     }
 
-    public Endereco atualizar(Long id, Endereco endereco, Long idUsuarioExecutor) {
-        if (id == null) {
-            throw new RuntimeException("ID não pode ser nulo");
-        }
-
-        Endereco existente = daoEndereco.buscarPorId(id);
-        if (existente == null) {
-            throw new RuntimeException("Endereço não encontrado com id: " + id);
-        }
-
-        validarEndereco(endereco);
-        endereco.setId(id);
-
-        daoEndereco.atualizar(endereco);
-
-        String detalhes = String.format(
-                "{\"id\": %d, \"novo_cep\": \"%s\", \"novo_num\": \"%s\"}",
-                id, endereco.getCep(), endereco.getNumero()
-        );
-        logService.registrarLog(idUsuarioExecutor, "enderecos", "UPDATE", detalhes);
-
-        return endereco;
-    }
-
-    public void desativar(Long id, Long idUsuarioExecutor) {
-        if (id == null) {
-            throw new RuntimeException("ID não pode ser nulo");
-        }
-
-        Endereco existente = daoEndereco.buscarPorId(id);
-        if (existente == null) {
-            throw new RuntimeException("Endereço não encontrado com id: " + id);
-        }
-
-        daoEndereco.desativar(id);
-
-        String detalhes = "{\"id_endereco_desativado\": " + id + "}";
-        logService.registrarLog(idUsuarioExecutor, "enderecos", "DISABLE", detalhes);
-    }
-
     private void validarEndereco(Endereco endereco) {
         if (endereco.getCep() == null || endereco.getCep().isBlank()) throw new RuntimeException("CEP não pode ser vazio");
         if (endereco.getLogradouro() == null || endereco.getLogradouro().isBlank()) throw new RuntimeException("Logradouro não pode ser vazio");
