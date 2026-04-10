@@ -12,4 +12,10 @@ public interface DaoUsuario extends DaoGenerico<Usuario> {
 
     Usuario buscarPorCpf(String cpf);
 
+    List<Usuario> buscarTodosVinculados(Long idAdm);
+
+    void ativar(Long id);
+
+    void atualizarSenha(Long id, String senhaHash);
+
 }

@@ -32,7 +32,7 @@ public class DaoCategoriaImpl implements DaoCategoria{
         String sql = """
             INSERT INTO\s""" + TABELA + """
             (categoria, descricao, data_Criacao, ativo)
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?)
             """;
 
         try (
@@ -45,8 +45,8 @@ public class DaoCategoriaImpl implements DaoCategoria{
 
             stmt.setString(1, categoria.getCategoria());
             stmt.setString(2, categoria.getDescricao());
-            stmt.setObject(4, categoria.getDataCriacao());
-            stmt.setBoolean(5, categoria.isAtivo());
+            stmt.setObject(3, categoria.getDataCriacao());
+            stmt.setBoolean(4, categoria.isAtivo());
 
 
             stmt.executeUpdate();
@@ -111,23 +111,16 @@ public class DaoCategoriaImpl implements DaoCategoria{
 
     @Override
     public void atualizar(Categoria categoria) {
-        String sql = """
-            UPDATE\s""" + TABELA + """
-            SET categoria = ?,
-                descricao = ?,
-                ativo = ?
-            WHERE id = ?
-            """;
+        String sql = "UPDATE " + TABELA + " SET categoria = ?, descricao = ?, ativo = ? WHERE id = ?";
 
         try (
                 Connection conn = ConnectionFactory.getConnection();
                 PreparedStatement stmt = conn.prepareStatement(sql)
         ) {
-
             stmt.setString(1, categoria.getCategoria());
             stmt.setString(2, categoria.getDescricao());
-            stmt.setBoolean(4, categoria.isAtivo());
-            stmt.setLong(5, categoria.getId());
+            stmt.setBoolean(3, categoria.isAtivo());
+            stmt.setLong(4, categoria.getId());
 
             int linhas = stmt.executeUpdate();
 
@@ -136,7 +129,7 @@ public class DaoCategoriaImpl implements DaoCategoria{
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Falha interna ao atualizar categoria. Aguarde a manutenção do servidor.");
+            throw new RuntimeException("Falha interna ao atualizar categoria: " + e.getMessage());
         }
     }
 
@@ -159,6 +152,51 @@ public class DaoCategoriaImpl implements DaoCategoria{
 
         } catch (SQLException e) {
             throw new RuntimeException("Serviço temporariamente indisponível. Erro 500.");
+        }
+    }
+
+    @Override
+    public void ativar(Long id) {
+        String sql = "UPDATE " + TABELA + " SET ativo = true WHERE id = ?";
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setLong(1, id);
+
+            int linhas = stmt.executeUpdate();
+
+            if (linhas == 0) {
+                throw new RuntimeException("Operação inválida: Categoria inexistente.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Serviço temporariamente indisponível. Erro 500.");
+        }
+    }
+
+    @Override
+    public List<Categoria> listarTodosAtivas() {
+        String sql = "SELECT * FROM " + TABELA + " WHERE ativo = true";
+
+        List<Categoria> categorias = new ArrayList<>();
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()
+        ) {
+
+            while (rs.next()) {
+                categorias.add(map(rs));
+            }
+
+            return categorias;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao carregar lista de categorias. Tente novamente em instantes.");
         }
     }
 }

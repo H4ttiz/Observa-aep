@@ -16,4 +16,5 @@ public interface DaoGenerico<T extends EntityGenerico>{
     void atualizar(T entidade);
 
     void desativar(Long id);
+
 }

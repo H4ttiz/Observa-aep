@@ -67,3 +67,14 @@ CREATE TABLE public.historico_movimentacao_solicitacao (
     CONSTRAINT fk_historico_solicitacao FOREIGN KEY (id_solicitacao) REFERENCES public.solicitacoes(id),
     CONSTRAINT fk_historico_responsavel FOREIGN KEY (id_responsavel) REFERENCES public.usuarios(id)
 );
+
+CREATE TABLE public.logs (
+    id BIGSERIAL NOT NULL,
+    id_usuario INT8 NOT NULL,
+    nome_tabela VARCHAR(100) NOT NULL,
+    acao VARCHAR(50) NOT NULL,
+    dados_alterados JSONB  NOT NULL,
+    data_execucao TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT logs_pk PRIMARY KEY (id),
+    CONSTRAINT fk_logs_usuario FOREIGN KEY (id_usuario) REFERENCES public.usuarios(id)
+);

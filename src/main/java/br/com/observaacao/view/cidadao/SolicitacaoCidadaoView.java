@@ -80,11 +80,11 @@ public class SolicitacaoCidadaoView {
             Endereco endereco = new Endereco(cep, logradouro, numero, complemento, bairro, cidade, estado);
 
             Loading.executar("Validando endereço");
-            endereco = serviceEndereco.cadastrar(endereco);
+            endereco = serviceEndereco.cadastrar(endereco, usuario.getId());
             Long idEndereco = endereco.getId();
 
             System.out.println("\n" + Cores.AZUL + "  [ SELECIONE UMA CATEGORIA ]" + Cores.RESET);
-            List<Categoria> categorias = serviceCategoria.listarTodos();
+            List<Categoria> categorias = serviceCategoria.listarTodosAtivas();
 
             for (Categoria categoria : categorias) {
                 System.out.printf("    " + Cores.CIANO + "[%d]" + Cores.RESET + " %-15s | %s\n",

@@ -1,11 +1,11 @@
 package br.com.observaacao.service.solicitacao;
 
-import br.com.observaacao.dao.historico_movimentacao_solicitacao.DaoHistoricoMovimentacaoSolicitacao;
 import br.com.observaacao.dao.solicitacao.DaoSolicitacao;
 import br.com.observaacao.model.enums.StatusSolicitacao;
 import br.com.observaacao.model.solicitacao.Solicitacao;
 import br.com.observaacao.model.usuario.Usuario;
 import br.com.observaacao.service.historico_movimentacao_solicitacao.ServiceHistoricoMovimentacaoSolicitacao;
+import br.com.observaacao.service.log.ServiceLog;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -15,41 +15,18 @@ public class ServiceSolicitacao {
 
     private final DaoSolicitacao daoSolicitacao;
     private final ServiceHistoricoMovimentacaoSolicitacao serviceHistorico;
+    private final ServiceLog logService;
 
-    public ServiceSolicitacao(DaoSolicitacao daoSolicitacao, ServiceHistoricoMovimentacaoSolicitacao serviceHistorico) {
+    public ServiceSolicitacao(DaoSolicitacao daoSolicitacao,
+                              ServiceHistoricoMovimentacaoSolicitacao serviceHistorico,
+                              ServiceLog logService) {
         this.daoSolicitacao = daoSolicitacao;
         this.serviceHistorico = serviceHistorico;
+        this.logService = logService;
     }
 
     public Solicitacao cadastrar(Solicitacao solicitacao) {
-
-        if (solicitacao.getId_categoria() == null) {
-            throw new RuntimeException("Categoria não pode ser nula");
-        }
-
-        if (solicitacao.getId_solicitante() == null) {
-            throw new RuntimeException("Solicitante não pode ser nulo");
-        }
-
-        if (solicitacao.getId_endereco() == null) {
-            throw new RuntimeException("Endereço não pode ser nulo");
-        }
-
-        if (solicitacao.getTitulo() == null || solicitacao.getTitulo().isBlank()) {
-            throw new RuntimeException("Título não pode ser vazio");
-        }
-
-        if (solicitacao.getDescricao() == null || solicitacao.getDescricao().isBlank()) {
-            throw new RuntimeException("Descrição não pode ser vazia");
-        }
-
-        if (solicitacao.getStatus() == null) {
-            throw new RuntimeException("Status não pode ser vazio");
-        }
-
-        if (solicitacao.getDt_solicitada() == null) {
-            throw new RuntimeException("Data de solicitação não pode ser nula");
-        }
+        validarSolicitacao(solicitacao);
 
         Long idGerado = daoSolicitacao.salvar(solicitacao);
 
@@ -60,74 +37,33 @@ public class ServiceSolicitacao {
                 solicitacao.getId_solicitante(),
                 "Solicitação registrada com sucesso no sistema."
         );
-        return solicitacao;
-    }
 
-    public Solicitacao buscarPorId(Long id) {
-
-        if (id == null) {
-            throw new RuntimeException("ID não pode ser nulo");
-        }
-
-        Solicitacao solicitacao = daoSolicitacao.buscarPorId(id);
-
-        if (solicitacao == null) {
-            throw new RuntimeException("Solicitação não encontrada com id: " + id);
-        }
+        String detalhes = String.format(
+                "{\"titulo\": \"%s\", \"categoria_id\": %d, \"anonimo\": %b}",
+                solicitacao.getTitulo(), solicitacao.getId_categoria(), solicitacao.getAnonimo()
+        );
+        logService.registrarLog(solicitacao.getId_solicitante(), "solicitacoes", "INSERT", detalhes);
 
         return solicitacao;
-    }
-
-    public List<Solicitacao> listarTodos() {
-        return daoSolicitacao.listarTodos();
     }
 
     public Solicitacao atualizar(Long id, Solicitacao solicitacao, Usuario responsavel) {
-
         if (id == null) {
             throw new RuntimeException("O identificador da solicitação é obrigatório para realizar a busca.");
         }
 
         Solicitacao existente = daoSolicitacao.buscarPorId(id);
-
         if (existente == null) {
             throw new RuntimeException("Não foi possível encontrar uma solicitação com o código informado: " + id);
         }
 
-        if (solicitacao.getId_categoria() == null) {
-            throw new RuntimeException("É necessário selecionar uma categoria para prosseguir.");
-        }
-
-        if (solicitacao.getId_solicitante() == null) {
-            throw new RuntimeException("A solicitação precisa estar vinculada a um usuário solicitante.");
-        }
-
-        if (solicitacao.getId_endereco() == null) {
-            throw new RuntimeException("As informações de localização são obrigatórias.");
-        }
-
-        if (solicitacao.getTitulo() == null || solicitacao.getTitulo().isBlank()) {
-            throw new RuntimeException("O campo de título deve ser preenchido.");
-        }
-
-        if (solicitacao.getDescricao() == null || solicitacao.getDescricao().isBlank()) {
-            throw new RuntimeException("Por favor, forneça uma descrição detalhada do problema.");
-        }
-
-        if (solicitacao.getStatus() == null) {
-            throw new RuntimeException("O status da solicitação não foi definido corretamente.");
-        }
-
-        if (solicitacao.getDt_solicitada() == null) {
-            throw new RuntimeException("A data de registro da solicitação está ausente.");
-        }
+        validarSolicitacao(solicitacao);
 
         if (solicitacao.getObservacao() == null || solicitacao.getObservacao().isBlank()) {
             throw new RuntimeException("Para concluir esta ação, é obrigatório registrar uma observação ou justificativa.");
         }
 
         StatusSolicitacao statusAnterior = existente.getStatus();
-
         solicitacao.setId(id);
         daoSolicitacao.atualizar(solicitacao);
 
@@ -139,111 +75,85 @@ public class ServiceSolicitacao {
                 solicitacao.getObservacao()
         );
 
+        String detalhes = String.format(
+                "{\"id\": %d, \"status_de\": \"%s\", \"status_para\": \"%s\", \"motivo\": \"%s\"}",
+                id, statusAnterior, solicitacao.getStatus(), solicitacao.getObservacao()
+        );
+        logService.registrarLog(responsavel.getId(), "solicitacoes", "UPDATE", detalhes);
+
         return solicitacao;
     }
 
-    public void desativar(Long id) {
-
+    public void desativar(Long id, Long idUsuarioExecutor) { // Adicionado idUsuarioExecutor
         if (id == null) {
             throw new RuntimeException("ID não pode ser nulo");
         }
 
         Solicitacao existente = daoSolicitacao.buscarPorId(id);
-
         if (existente == null) {
             throw new RuntimeException("Solicitação não encontrada com id: " + id);
         }
 
         daoSolicitacao.desativar(id);
+
+        String detalhes = "{\"id_solicitacao_desativada\": " + id + "}";
+        logService.registrarLog(idUsuarioExecutor, "solicitacoes", "DISABLE", detalhes);
+    }
+
+    private void validarSolicitacao(Solicitacao s) {
+        if (s.getId_categoria() == null) throw new RuntimeException("Categoria não pode ser nula");
+        if (s.getId_solicitante() == null) throw new RuntimeException("Solicitante não pode ser nulo");
+        if (s.getId_endereco() == null) throw new RuntimeException("Endereço não pode ser nulo");
+        if (s.getTitulo() == null || s.getTitulo().isBlank()) throw new RuntimeException("Título não pode ser vazio");
+        if (s.getDescricao() == null || s.getDescricao().isBlank()) throw new RuntimeException("Descrição não pode ser vazia");
+        if (s.getStatus() == null) throw new RuntimeException("Status não pode ser vazio");
+        if (s.getDt_solicitada() == null) throw new RuntimeException("Data de solicitação não pode ser nula");
+    }
+
+    public Solicitacao buscarPorId(Long id) {
+        if (id == null) throw new RuntimeException("ID não pode ser nulo");
+        Solicitacao solicitacao = daoSolicitacao.buscarPorId(id);
+        if (solicitacao == null) throw new RuntimeException("Solicitação não encontrada com id: " + id);
+        return solicitacao;
+    }
+
+    public List<Solicitacao> listarTodos() {
+        return daoSolicitacao.listarTodos();
     }
 
     public List<Solicitacao> buscarPorUsuario(Long idUsuario) {
-        if (idUsuario == null) {
-            throw new RuntimeException("Erro de identificação: Usuário inválido.");
-        }
+        if (idUsuario == null) throw new RuntimeException("Erro de identificação: Usuário inválido.");
         return daoSolicitacao.listaPorUsuario(idUsuario);
     }
 
     public List<Solicitacao> buscarPorAtendente(Long idAtendente) {
-        if (idAtendente == null) {
-            throw new RuntimeException("Erro de identificação: Usuário inválido.");
-        }
+        if (idAtendente == null) throw new RuntimeException("Erro de identificação: Usuário inválido.");
         return daoSolicitacao.listaPorAtendente(idAtendente);
     }
 
     public List<Solicitacao> buscarSolicitacaoPendente() {
-        try {
-            List<Solicitacao> solicitacoes = daoSolicitacao.buscarSolicitacaoEspecifica(StatusSolicitacao.N1);
-
-            if (solicitacoes == null) {
-                throw new RuntimeException("Não foi possível carregar as pendências. Tente novamente mais tarde.");
-            }
-
-            return solicitacoes;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Falha ao buscar solicitações pendentes: " + e.getMessage());
-        }
+        return daoSolicitacao.buscarSolicitacaoEspecifica(StatusSolicitacao.N1);
     }
 
     public List<Solicitacao> buscarSolicitacaoAguardandoAtendimento() {
-        try {
-            List<Solicitacao> solicitacoes = daoSolicitacao.buscarSolicitacaoEspecifica(StatusSolicitacao.N3);
-
-            if (solicitacoes == null) {
-                throw new RuntimeException("Não foi possível carregar as pendências. Tente novamente mais tarde.");
-            }
-
-            return solicitacoes;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Falha ao buscar solicitações pendentes: " + e.getMessage());
-        }
+        return daoSolicitacao.buscarSolicitacaoEspecifica(StatusSolicitacao.N3);
     }
 
     public List<Solicitacao> buscarSolicitacaoEmAndamento() {
-        try {
-            List<Solicitacao> solicitacoes = daoSolicitacao.buscarSolicitacaoEspecifica(StatusSolicitacao.N4);
-
-            if (solicitacoes == null) {
-                throw new RuntimeException("Não foi possível carregar as Em Andamento. Tente novamente mais tarde.");
-            }
-
-            return solicitacoes;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Falha ao buscar solicitações Em Andamento: " + e.getMessage());
-        }
+        return daoSolicitacao.buscarSolicitacaoEspecifica(StatusSolicitacao.N4);
     }
-
 
     public List<Solicitacao> buscarSolicitacaoAtrasadas() {
+        List<Solicitacao> solicitacoes = daoSolicitacao.listarTodos();
+        List<Solicitacao> atrasadas = new ArrayList<>();
 
-        try {
-            List<Solicitacao> solicitacoes = daoSolicitacao.listarTodos();
-            List<Solicitacao> solicitacaosAtrasadas = new ArrayList<>();
-
-            if (solicitacoes == null) {
-                throw new RuntimeException("Não foi possível carregar as pendências. Tente novamente mais tarde.");
+        for (Solicitacao s : solicitacoes) {
+            if (s.getDt_prazo() != null &&
+                    s.getDt_prazo().isBefore(LocalDateTime.now()) &&
+                    (s.getStatus() == StatusSolicitacao.N4 || s.getStatus() == StatusSolicitacao.N3)) {
+                atrasadas.add(s);
             }
-
-            for (Solicitacao solicitacao : solicitacoes) {
-
-                if (solicitacao.getDt_prazo() != null &&
-                        solicitacao.getDt_prazo().isBefore(LocalDateTime.now()) &&
-                                (solicitacao.getStatus() == StatusSolicitacao.N4 ||
-                                 solicitacao.getStatus() == StatusSolicitacao.N3)) {
-
-                    solicitacaosAtrasadas.add(solicitacao);
-                }
-            }
-
-            return solicitacaosAtrasadas;
-
-        } catch (Exception e) {
-            throw new RuntimeException("Falha ao buscar solicitações pendentes: " + e.getMessage());
         }
+        return atrasadas;
     }
-
-
 }

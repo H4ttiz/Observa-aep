@@ -5,9 +5,11 @@ import br.com.observaacao.service.categoria.ServiceCategoria;
 import br.com.observaacao.service.endereco.ServiceEndereco;
 import br.com.observaacao.service.historico_movimentacao_solicitacao.ServiceHistoricoMovimentacaoSolicitacao;
 import br.com.observaacao.service.solicitacao.ServiceSolicitacao;
+import br.com.observaacao.service.usuario.ServiceUsuario;
 import br.com.observaacao.util.Cores;
 import br.com.observaacao.util.CpfUtil;
 import br.com.observaacao.util.Loading;
+import br.com.observaacao.view.AlterarSenhaView;
 
 import java.util.Scanner;
 
@@ -19,15 +21,18 @@ public class MenuCidadaoView {
     private final ServiceSolicitacao serviceSolicitacao;
     private final ServiceCategoria serviceCategoria;
     private final ServiceHistoricoMovimentacaoSolicitacao serviceHistorico;
+    private final ServiceUsuario serviceUsuario;
 
     public MenuCidadaoView(ServiceEndereco serviceEndereco,
                            ServiceSolicitacao serviceSolicitacao,
                            ServiceCategoria serviceCategoria,
-                           ServiceHistoricoMovimentacaoSolicitacao serviceHistorico) {
+                           ServiceHistoricoMovimentacaoSolicitacao serviceHistorico,
+                           ServiceUsuario serviceUsuario) {
         this.serviceEndereco = serviceEndereco;
         this.serviceSolicitacao = serviceSolicitacao;
         this.serviceCategoria = serviceCategoria;
         this.serviceHistorico = serviceHistorico;
+        this.serviceUsuario = serviceUsuario;
     }
 
     public void menu(Usuario usuario) {
@@ -42,6 +47,7 @@ public class MenuCidadaoView {
             System.out.println("  " + Cores.CIANO + "1." + Cores.RESET + " Criar Nova Solicitação");
             System.out.println("  " + Cores.CIANO + "2." + Cores.RESET + " Ver Minhas Solicitações");
             System.out.println("  " + Cores.CIANO + "3." + Cores.RESET + " Ver Linha do Tempo da Solicitação");
+            System.out.println("  " + Cores.CIANO + "4." + Cores.RESET + " Trocar Senha");
             System.out.println("  " + Cores.CIANO + "0." + Cores.RESET + " Encerrar Sessão (Logout)");
             System.out.println(Cores.CIANO + "  ─────────────────────────────────────────────" + Cores.RESET);
 
@@ -54,7 +60,7 @@ public class MenuCidadaoView {
                 System.out.println(Cores.VERMELHO + "    ⚠ Digite um número válido!" + Cores.RESET);
                 continue;
             }
-
+            AlterarSenhaView alterarSenhaView = new AlterarSenhaView(serviceUsuario);
             switch (opcao) {
                 case 1 -> {
                     Loading.executar("Iniciando formulário");
@@ -72,7 +78,10 @@ public class MenuCidadaoView {
                     new SolicitacaoCidadaoView(serviceEndereco, serviceSolicitacao, serviceCategoria,serviceHistorico)
                             .linhaDoTempoSolicitacao(usuario);
                 }
-
+                case 4 -> {
+                    Loading.executar("Buscando Dados");
+                    alterarSenhaView.exibirTela(usuario);
+                }
                 case 0 -> {
                     System.out.println(Cores.AMARELO + "    Saindo..." + Cores.RESET);
                     Loading.executar("Limpando cache de sessão");

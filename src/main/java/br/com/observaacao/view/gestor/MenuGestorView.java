@@ -7,6 +7,8 @@ import br.com.observaacao.service.solicitacao.ServiceSolicitacao;
 import br.com.observaacao.service.usuario.ServiceUsuario;
 import br.com.observaacao.util.Cores;
 import br.com.observaacao.util.Loading;
+import br.com.observaacao.view.AlterarSenhaView;
+
 import java.util.Scanner;
 
 public class MenuGestorView {
@@ -35,14 +37,21 @@ public class MenuGestorView {
                 System.out.println("  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛" + Cores.RESET);
 
                 System.out.println("  " + Cores.AZUL + "[ PAINEL DE CONTROLE ]" + Cores.RESET);
+
+                System.out.println("\n  " + Cores.AZUL + "[ VISUALIZAR ]" + Cores.RESET);
                 System.out.println("  " + Cores.CIANO + "1." + Cores.RESET + " Listar Todas as Solicitações");
                 System.out.println("  " + Cores.CIANO + "2." + Cores.RESET + " Ver Pendentes de Aprovação");
                 System.out.println("  " + Cores.CIANO + "3." + Cores.RESET + " Aprovar Solicitação (Prioridade/Prazo)");
                 System.out.println("  " + Cores.CIANO + "4." + Cores.RESET + " Rejeitar Solicitação");
+
+                System.out.println("\n  " + Cores.AZUL + "[ GERENCIAR ]" + Cores.RESET);
                 System.out.println("  " + Cores.CIANO + "5." + Cores.RESET + " Acompanhar Andamento das Equipes");
                 System.out.println("  " + Cores.CIANO + "6." + Cores.RESET + " Acompanhar Solicitações Em Aberto");
                 System.out.println("  " + Cores.CIANO + "7." + Cores.RESET + " Ver Solicitações Atrasadas");
                 System.out.println("  " + Cores.CIANO + "8." + Cores.RESET + " Ver Linha do Tempo das Solicitações");
+
+                System.out.println("\n  " + Cores.AZUL + "[ PESSOAL ]" + Cores.RESET);
+                System.out.println("  " + Cores.CIANO + "9." + Cores.RESET + " Trocar Senha");
                 System.out.println("  " + Cores.CIANO + "0." + Cores.RESET + " Encerrar Sessão (Logout)");
                 System.out.println(Cores.CIANO + "  ─────────────────────────────────────────────" + Cores.RESET);
 
@@ -75,6 +84,7 @@ public class MenuGestorView {
         SolicitacaoGestorView telaLista = new SolicitacaoGestorView(serviceSolicitacao,serviceUsuario,serviceEndereco);
         DecisaoGestorView telaDecisao = new DecisaoGestorView(serviceSolicitacao);
         MonitoramentoGestorView telaMonitor = new MonitoramentoGestorView(serviceSolicitacao,serviceUsuario,serviceHistorico,serviceEndereco);
+        AlterarSenhaView alterarSenhaView = new AlterarSenhaView(serviceUsuario);
 
         switch (opcao) {
             case 1 -> {
@@ -106,6 +116,10 @@ public class MenuGestorView {
             case 8 -> {
                 Loading.executar("Buscando Historicos");
                 telaMonitor.linhaDoTempoGestor();
+            }
+            case 9 -> {
+                Loading.executar("Buscando Dados");
+                alterarSenhaView.exibirTela(usuario);
             }
             default -> {
                 System.out.println(Cores.VERMELHO + "    ⚠ Opção inválida!" + Cores.RESET);

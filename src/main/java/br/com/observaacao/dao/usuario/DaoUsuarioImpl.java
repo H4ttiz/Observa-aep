@@ -176,6 +176,50 @@ public class DaoUsuarioImpl implements DaoUsuario {
     }
 
     @Override
+    public void ativar(Long id) {
+        String sql = "UPDATE " + TABELA + " SET ativo = true WHERE id = ?";
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setLong(1, id);
+
+            int linhas = stmt.executeUpdate();
+
+            if (linhas == 0) {
+                throw new RuntimeException("Falha na operação: Este perfil de usuário já existe ou já está Ativo.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro no servidor ao tentar desativar conta. (Status 500)");
+        }
+    }
+
+    @Override
+    public void atualizarSenha(Long id, String senhaHash) {
+        String sql = "UPDATE " + TABELA + " SET senha = ? WHERE id = ?";
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setString(1, senhaHash);
+            stmt.setLong(2, id);
+
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas == 0) {
+                throw new RuntimeException("Não foi possível atualizar a senha: Usuário não encontrado.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro técnico ao atualizar senha no banco de dados: " + e.getMessage());
+        }
+    }
+
+    @Override
     public Usuario buscarPorEmail(String email) {
         String sql = "SELECT * FROM " + TABELA + " WHERE email = ?";
 
@@ -212,6 +256,30 @@ public class DaoUsuarioImpl implements DaoUsuario {
 
         } catch (SQLException e) {
             throw new RuntimeException("Erro ao validar CPF. Por favor, verifique sua conexão ou tente mais tarde.");
+        }
+    }
+
+    @Override
+    public List<Usuario> buscarTodosVinculados(Long idAdm) {
+        String sql = "SELECT * FROM " + TABELA + " WHERE criado_por = ?";
+        List<Usuario> usuarios = new ArrayList<>();
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setLong(1, idAdm);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                usuarios.add(map(rs));
+            }
+
+            return usuarios;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao carregar dados dos usuários. O serviço pode estar temporariamente indisponível.");
         }
     }
 

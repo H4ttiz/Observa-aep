@@ -7,6 +7,7 @@ import br.com.observaacao.service.solicitacao.ServiceSolicitacao;
 import br.com.observaacao.service.usuario.ServiceUsuario;
 import br.com.observaacao.util.Cores;
 import br.com.observaacao.util.Loading;
+import br.com.observaacao.view.AlterarSenhaView;
 
 import java.util.List;
 import java.util.Scanner;
@@ -42,6 +43,8 @@ public class MenuAtendenteView {
                 System.out.println("  " + Cores.CIANO + "4." + Cores.RESET + " Atualizar Diário de Bordo (Observações)");
                 System.out.println("  " + Cores.CIANO + "5." + Cores.RESET + " Finalizar Solicitação (N5)");
 
+                System.out.println("\n  " + Cores.AZUL + "[ PESSOAL ]" + Cores.RESET);
+                System.out.println("  " + Cores.CIANO + "6." + Cores.RESET + " Trocar Senha");
                 System.out.println("\n  " + Cores.CIANO + "0." + Cores.RESET + " Encerrar Sessão (Logout)");
                 System.out.println(Cores.CIANO + "  ─────────────────────────────────────────────" + Cores.RESET);
 
@@ -62,13 +65,14 @@ public class MenuAtendenteView {
                 }
 
                 AtendimentoView atendimentoView = new AtendimentoView(serviceSolicitacao);
-
+                AlterarSenhaView alterarSenhaView = new AlterarSenhaView(serviceUsuario);
                 switch (opcao) {
                     case 1 -> listarDisponiveis();
                     case 2 -> atendimentoView.puxarSolicitacao(atendente);
                     case 3 -> listarMeusAtendimentos(atendente);
                     case 4 -> atendimentoView.atualizarAndamento(atendente);
                     case 5 -> atendimentoView.finalizarSolicitacao(atendente);
+                    case 6 -> alterarSenhaView.exibirTela(atendente);
                     default -> System.out.println(Cores.VERMELHO + "    ⚠ Opção inválida!" + Cores.RESET);
                 }
 
