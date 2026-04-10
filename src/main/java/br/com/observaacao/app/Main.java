@@ -37,7 +37,7 @@ public class Main{
         // ===== HISTORICO | SOLICITAÇÃO =====
         DaoHistoricoMovimentacaoSolicitacao daoHistorico = new DaoHistoricoMovimentacaoSolicitacaoImpl();
         DaoSolicitacao daoSolicitacao = new DaoSolicitacaoImpl();
-        ServiceHistoricoMovimentacaoSolicitacao serviceHistorico = new ServiceHistoricoMovimentacaoSolicitacao(daoHistorico);
+        ServiceHistoricoMovimentacaoSolicitacao serviceHistorico = new ServiceHistoricoMovimentacaoSolicitacao(daoHistorico,daoSolicitacao);
         ServiceSolicitacao serviceSolicitacao = new ServiceSolicitacao(daoSolicitacao,serviceHistorico,serviceLog);
 
         // ===== CATEGORIA =====

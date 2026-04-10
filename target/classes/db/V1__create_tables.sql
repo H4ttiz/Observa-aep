@@ -13,7 +13,6 @@ CREATE TABLE public.usuarios (
 	CONSTRAINT usuarios_unique UNIQUE (cpf),
 	CONSTRAINT fk_criado_por FOREIGN KEY (criado_por) REFERENCES public.usuarios(id)
 );
-
 CREATE TABLE categorias (
     id bigserial  NOT NULL,
     categoria varchar(150) NOT NULL,
