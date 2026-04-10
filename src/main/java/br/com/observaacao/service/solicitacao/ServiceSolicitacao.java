@@ -75,20 +75,29 @@ public class ServiceSolicitacao {
                 solicitacao.getObservacao()
         );
 
-        String motivoSeguro = solicitacao.getObservacao()
-                .replace("\\", "\\\\")
-                .replace("\"", "\\\"")
-                .replace("\n", "\\n")
-                .replace("\r", "");
-
         String detalhes = String.format(
                 "{\"id\": %d, \"status_de\": \"%s\", \"status_para\": \"%s\", \"motivo\": \"%s\"}",
-                id, statusAnterior, solicitacao.getStatus(), motivoSeguro
+                id, statusAnterior, solicitacao.getStatus(), solicitacao.getObservacao()
         );
-
         logService.registrarLog(responsavel.getId(), "solicitacoes", "UPDATE", detalhes);
 
         return solicitacao;
+    }
+
+    public void desativar(Long id, Long idUsuarioExecutor) { // Adicionado idUsuarioExecutor
+        if (id == null) {
+            throw new RuntimeException("ID não pode ser nulo");
+        }
+
+        Solicitacao existente = daoSolicitacao.buscarPorId(id);
+        if (existente == null) {
+            throw new RuntimeException("Solicitação não encontrada com id: " + id);
+        }
+
+        daoSolicitacao.desativar(id);
+
+        String detalhes = "{\"id_solicitacao_desativada\": " + id + "}";
+        logService.registrarLog(idUsuarioExecutor, "solicitacoes", "DISABLE", detalhes);
     }
 
     private void validarSolicitacao(Solicitacao s) {

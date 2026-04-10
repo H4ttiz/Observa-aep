@@ -142,4 +142,17 @@ public class DaoHistoricoMovimentacaoSolicitacaoImpl implements DaoHistoricoMovi
         }
     }
 
+    @Override
+    public void atualizar(HistoricoMovimentacaoSolicitacao historico) {
+        throw new UnsupportedOperationException(
+                "Ação não permitida: Registros de histórico não podem ser alterados após o envio."
+        );
+    }
+
+    @Override
+    public void desativar(Long id) {
+        throw new UnsupportedOperationException(
+                "Ação não permitida: Registros de histórico não podem ser removidos por questões de auditoria."
+        );
+    }
 }
