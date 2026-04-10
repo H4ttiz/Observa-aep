@@ -1,0 +1,137 @@
+package br.com.observaacao.view.gestor;
+
+import br.com.observaacao.model.usuario.Usuario;
+import br.com.observaacao.service.endereco.ServiceEndereco;
+import br.com.observaacao.service.historico_movimentacao_solicitacao.ServiceHistoricoMovimentacaoSolicitacao;
+import br.com.observaacao.service.solicitacao.ServiceSolicitacao;
+import br.com.observaacao.service.usuario.ServiceUsuario;
+import br.com.observaacao.util.Cores;
+import br.com.observaacao.util.Loading;
+import br.com.observaacao.view.AlterarSenhaView;
+
+import java.util.Scanner;
+
+public class MenuGestorView {
+
+    private final Scanner sc = new Scanner(System.in);
+    private final ServiceSolicitacao serviceSolicitacao;
+    private final ServiceUsuario serviceUsuario;
+    private final ServiceEndereco serviceEndereco;
+    private final ServiceHistoricoMovimentacaoSolicitacao serviceHistorico;
+
+    public MenuGestorView(ServiceSolicitacao serviceSolicitacao, ServiceUsuario serviceUsuario, ServiceEndereco serviceEndereco,
+                          ServiceHistoricoMovimentacaoSolicitacao serviceHistorico) {
+        this.serviceSolicitacao = serviceSolicitacao;
+        this.serviceUsuario = serviceUsuario;
+        this.serviceEndereco = serviceEndereco;
+        this.serviceHistorico = serviceHistorico;
+    }
+
+    public void menu(Usuario usuario) {
+
+        while (true) {
+            try {
+                System.out.println("\n" + Cores.CIANO + "  ┏━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┓");
+                System.out.printf("  ┃  💼 %-39s \n", Cores.VERDE + usuario.getNome().toUpperCase() + Cores.CIANO);
+                System.out.printf("  ┃  🔰 %-39s\n", Cores.RESET + "PERFIL: GESTOR PÚBLICO" + Cores.CIANO);
+                System.out.println("  ┗━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━┛" + Cores.RESET);
+
+                System.out.println("  " + Cores.AZUL + "[ PAINEL DE CONTROLE ]" + Cores.RESET);
+
+                System.out.println("\n  " + Cores.AZUL + "[ VISUALIZAR ]" + Cores.RESET);
+                System.out.println("  " + Cores.CIANO + "1." + Cores.RESET + " Listar Todas as Solicitações");
+                System.out.println("  " + Cores.CIANO + "2." + Cores.RESET + " Ver Pendentes de Aprovação");
+                System.out.println("  " + Cores.CIANO + "3." + Cores.RESET + " Aprovar Solicitação (Prioridade/Prazo)");
+                System.out.println("  " + Cores.CIANO + "4." + Cores.RESET + " Rejeitar Solicitação");
+
+                System.out.println("\n  " + Cores.AZUL + "[ GERENCIAR ]" + Cores.RESET);
+                System.out.println("  " + Cores.CIANO + "5." + Cores.RESET + " Acompanhar Andamento das Equipes");
+                System.out.println("  " + Cores.CIANO + "6." + Cores.RESET + " Acompanhar Solicitações Em Aberto");
+                System.out.println("  " + Cores.CIANO + "7." + Cores.RESET + " Ver Solicitações Atrasadas");
+                System.out.println("  " + Cores.CIANO + "8." + Cores.RESET + " Ver Linha do Tempo das Solicitações");
+
+                System.out.println("\n  " + Cores.AZUL + "[ PESSOAL ]" + Cores.RESET);
+                System.out.println("  " + Cores.CIANO + "9." + Cores.RESET + " Trocar Senha");
+                System.out.println("  " + Cores.CIANO + "0." + Cores.RESET + " Encerrar Sessão (Logout)");
+                System.out.println(Cores.CIANO + "  ─────────────────────────────────────────────" + Cores.RESET);
+
+                System.out.print(Cores.AMARELO + "  ▸ Escolha uma opção: " + Cores.RESET);
+
+                int opcao;
+                try {
+                    opcao = Integer.parseInt(sc.nextLine());
+                } catch (Exception e) {
+                    System.out.println(Cores.VERMELHO + "    ⚠ Digite um número válido!" + Cores.RESET);
+                    continue;
+                }
+
+                if (opcao == 0) {
+                    System.out.println(Cores.AMARELO + "    Saindo..." + Cores.RESET);
+                    Loading.executar("Finalizando painel de gestão");
+                    return;
+                }
+
+                processarOpcao(opcao, usuario);
+
+            } catch (Exception e) {
+                System.out.println(Cores.VERMELHO + "    ⚠ Erro inesperado: " + e.getMessage() + Cores.RESET);
+                aguardar();
+            }
+        }
+    }
+
+    private void processarOpcao(int opcao, Usuario usuario) {
+        SolicitacaoGestorView telaLista = new SolicitacaoGestorView(serviceSolicitacao,serviceUsuario,serviceEndereco);
+        DecisaoGestorView telaDecisao = new DecisaoGestorView(serviceSolicitacao);
+        MonitoramentoGestorView telaMonitor = new MonitoramentoGestorView(serviceSolicitacao,serviceUsuario,serviceHistorico,serviceEndereco);
+        AlterarSenhaView alterarSenhaView = new AlterarSenhaView(serviceUsuario);
+
+        switch (opcao) {
+            case 1 -> {
+                Loading.executar("Buscando registros");
+                telaLista.exibirTodas();
+            }
+            case 2 -> {
+                Loading.executar("Filtrando pendências");
+                telaLista.exibirPendentes();
+            }
+            case 3 -> {
+                telaDecisao.aprovar(usuario);
+            }
+            case 4 -> {
+                telaDecisao.rejeitar(usuario);
+            }
+            case 5 -> {
+                Loading.executar("Sincronizando Andamento");
+                telaMonitor.verAndamento();
+            }
+            case 6 -> {
+                Loading.executar("Analisando Solicitações Abetas");
+                telaMonitor.verAguardandoAtendimento();
+            }
+            case 7 -> {
+                Loading.executar("Analisando prazos");
+                telaMonitor.verAtrasadas();
+            }
+            case 8 -> {
+                Loading.executar("Buscando Historicos");
+                telaMonitor.linhaDoTempoGestor();
+            }
+            case 9 -> {
+                Loading.executar("Buscando Dados");
+                alterarSenhaView.exibirTela(usuario);
+            }
+            default -> {
+                System.out.println(Cores.VERMELHO + "    ⚠ Opção inválida!" + Cores.RESET);
+                return;
+            }
+        }
+
+        aguardar();
+    }
+
+    private void aguardar() {
+        System.out.println("\n  " + Cores.CIANO + "Pressione ENTER para voltar ao menu..." + Cores.RESET);
+        sc.nextLine();
+    }
+}
