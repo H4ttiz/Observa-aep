@@ -1,6 +1,7 @@
 package br.com.observaacao.model.usuario;
 
 import br.com.observaacao.model.EntityGenerico;
+import br.com.observaacao.model.enums.TipoUsuario;
 
 import java.time.LocalDateTime;
 

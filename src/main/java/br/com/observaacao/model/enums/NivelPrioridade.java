@@ -1,4 +1,4 @@
-package br.com.observaacao.model.categoria;
+package br.com.observaacao.model.enums;
 
 public enum NivelPrioridade {
 

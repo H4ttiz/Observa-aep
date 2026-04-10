@@ -1,4 +1,4 @@
-package br.com.observaacao.model.usuario;
+package br.com.observaacao.model.enums;
 
 public enum TipoUsuario {
     C("Cidadão"),

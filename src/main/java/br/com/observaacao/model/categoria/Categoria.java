@@ -9,7 +9,6 @@ public class Categoria extends EntityGenerico {
     private Long id;
     private String categoria;
     private String descricao;
-    private NivelPrioridade nivelPrioridade;
     private final LocalDateTime dataCriacao;
     private boolean ativo;
 
@@ -62,6 +61,6 @@ public class Categoria extends EntityGenerico {
 
     @Override
     public Long getId() {
-        return 0L;
+        return this.id;
     }
 }

@@ -1,6 +1,6 @@
 package br.com.observaacao.dao.usuario;
 
-import br.com.observaacao.model.usuario.TipoUsuario;
+import br.com.observaacao.model.enums.TipoUsuario;
 import br.com.observaacao.config.ConnectionFactory;
 import br.com.observaacao.model.usuario.Usuario;
 
@@ -32,7 +32,7 @@ public class DaoUsuarioImpl implements DaoUsuario {
     }
 
     @Override
-    public void salvar(Usuario usuario) {
+    public Long salvar(Usuario usuario) {
 
         String sql = """
             INSERT INTO\s""" + TABELA + """
@@ -62,11 +62,13 @@ public class DaoUsuarioImpl implements DaoUsuario {
                 if (rs.next()) {
                     Long idGerado = rs.getLong(1);
                     usuario.setId(idGerado);
+                    return idGerado;
                 }
             }
+            return null;
 
         } catch (SQLException e) {
-            throw new RuntimeException("erro ao salvar usuario", e);
+            throw new RuntimeException("Não foi possível concluir seu cadastro. (Erro 500 - Falha no Servidor)");
         }
     }
 
@@ -87,7 +89,7 @@ public class DaoUsuarioImpl implements DaoUsuario {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar usuário por id", e);
+            throw new RuntimeException("Erro ao carregar dados do usuário. O serviço pode estar temporariamente indisponível.");
         }
     }
 
@@ -110,7 +112,7 @@ public class DaoUsuarioImpl implements DaoUsuario {
             return usuarios;
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao listar usuários", e);
+            throw new RuntimeException("Não foi possível recuperar a lista de usuários. Aguarde a manutenção do sistema.");
         }
     }
 
@@ -142,13 +144,11 @@ public class DaoUsuarioImpl implements DaoUsuario {
             int linhas = stmt.executeUpdate();
 
             if (linhas == 0) {
-                throw new RuntimeException(
-                        "Nenhum usuário encontrado com id: " + usuario.getId()
-                );
+                throw new RuntimeException("Os dados não puderam ser atualizados: Usuário não localizado.");
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao atualizar usuário", e);
+            throw new RuntimeException("Erro interno ao atualizar perfil. Tente novamente em alguns minutos.");
         }
     }
 
@@ -167,13 +167,55 @@ public class DaoUsuarioImpl implements DaoUsuario {
             int linhas = stmt.executeUpdate();
 
             if (linhas == 0) {
-                throw new RuntimeException(
-                        "Nenhum usuário encontrado com id: " + id
-                );
+                throw new RuntimeException("Falha na operação: Este perfil de usuário já não existe ou já está inativo.");
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao desativar usuário", e);
+            throw new RuntimeException("Erro no servidor ao tentar desativar conta. (Status 500)");
+        }
+    }
+
+    @Override
+    public void ativar(Long id) {
+        String sql = "UPDATE " + TABELA + " SET ativo = true WHERE id = ?";
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setLong(1, id);
+
+            int linhas = stmt.executeUpdate();
+
+            if (linhas == 0) {
+                throw new RuntimeException("Falha na operação: Este perfil de usuário já existe ou já está Ativo.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro no servidor ao tentar desativar conta. (Status 500)");
+        }
+    }
+
+    @Override
+    public void atualizarSenha(Long id, String senhaHash) {
+        String sql = "UPDATE " + TABELA + " SET senha = ? WHERE id = ?";
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setString(1, senhaHash);
+            stmt.setLong(2, id);
+
+            int linhasAfetadas = stmt.executeUpdate();
+
+            if (linhasAfetadas == 0) {
+                throw new RuntimeException("Não foi possível atualizar a senha: Usuário não encontrado.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro técnico ao atualizar senha no banco de dados: " + e.getMessage());
         }
     }
 
@@ -193,7 +235,7 @@ public class DaoUsuarioImpl implements DaoUsuario {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Erro ao buscar usuário por email", e);
+            throw new RuntimeException("Falha na autenticação: Erro ao verificar credenciais no servidor.");
         }
     }
 
@@ -213,7 +255,33 @@ public class DaoUsuarioImpl implements DaoUsuario {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e.getMessage());
+            throw new RuntimeException("Erro ao validar CPF. Por favor, verifique sua conexão ou tente mais tarde.");
         }
     }
+
+    @Override
+    public List<Usuario> buscarTodosVinculados(Long idAdm) {
+        String sql = "SELECT * FROM " + TABELA + " WHERE criado_por = ?";
+        List<Usuario> usuarios = new ArrayList<>();
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setLong(1, idAdm);
+            ResultSet rs = stmt.executeQuery();
+
+            while (rs.next()) {
+                usuarios.add(map(rs));
+            }
+
+            return usuarios;
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao carregar dados dos usuários. O serviço pode estar temporariamente indisponível.");
+        }
+    }
+
+
 }

@@ -47,9 +47,34 @@ CREATE TABLE public.solicitacoes (
 	data_solicitada timestamp DEFAULT CURRENT_TIMESTAMP NULL,
 	data_prazo timestamp NULL,
 	data_finalizada timestamp NULL,
+    observacao TEXT,
 	CONSTRAINT solicitacoes_pk PRIMARY KEY (id),
 	CONSTRAINT fk_id_categoria FOREIGN KEY (id_categoria) REFERENCES public.categorias(id),
 	CONSTRAINT fk_id_solicitante FOREIGN KEY (id_solicitante) REFERENCES public.usuarios(id),
 	CONSTRAINT fk_id_atendente FOREIGN KEY (id_atendente) REFERENCES public.usuarios(id),
 	CONSTRAINT fk_id_endereco FOREIGN KEY (id_endereco) REFERENCES public.enderecos(id)
+);
+
+CREATE TABLE public.historico_movimentacao_solicitacao (
+    id bigserial NOT NULL,
+    id_solicitacao int8 NOT NULL,
+    id_responsavel int8 NOT NULL,
+    comentario TEXT NOT NULL,
+    status_atual char(2) NOT NULL,
+    status_anterior char(2) NULL,
+    data_movimentacao timestamp DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT historico_movimentacao_pk PRIMARY KEY (id),
+    CONSTRAINT fk_historico_solicitacao FOREIGN KEY (id_solicitacao) REFERENCES public.solicitacoes(id),
+    CONSTRAINT fk_historico_responsavel FOREIGN KEY (id_responsavel) REFERENCES public.usuarios(id)
+);
+
+CREATE TABLE public.logs (
+    id BIGSERIAL NOT NULL,
+    id_usuario INT8 NOT NULL,
+    nome_tabela VARCHAR(100) NOT NULL,
+    acao VARCHAR(50) NOT NULL,
+    dados_alterados JSONB  NOT NULL,
+    data_execucao TIMESTAMP DEFAULT CURRENT_TIMESTAMP NOT NULL,
+    CONSTRAINT logs_pk PRIMARY KEY (id),
+    CONSTRAINT fk_logs_usuario FOREIGN KEY (id_usuario) REFERENCES public.usuarios(id)
 );
