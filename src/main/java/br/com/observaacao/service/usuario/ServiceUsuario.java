@@ -31,6 +31,7 @@ public class ServiceUsuario {
         if (emailJaCadastrado != null) throw new RuntimeException("Email já cadastrado");
 
         String senhaHash = SenhaUtil.hash(dto.senha());
+
         TipoUsuario tipo = tipoPassado == null ? TipoUsuario.C : tipoPassado;
 
         Usuario usuario = new Usuario(
