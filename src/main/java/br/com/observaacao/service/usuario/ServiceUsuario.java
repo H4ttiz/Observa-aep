@@ -43,10 +43,10 @@ public class ServiceUsuario {
                 tipo
         );
 
-        daoUsuario.salvar(usuario);
+        Long id = daoUsuario.salvar(usuario);
 
         String detalhes = String.format("{\"email\": \"%s\", \"tipo\": \"%s\"}", usuario.getEmail(), tipo);
-        logService.registrarLog(0L, "usuarios", "SELF_REGISTER", detalhes); // 0L pois ele ainda não tinha ID
+        logService.registrarLog(id, "usuarios", "SELF_REGISTER", detalhes);
 
         return usuario;
     }
