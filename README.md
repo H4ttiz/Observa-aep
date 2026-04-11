@@ -155,7 +155,6 @@ Cada persona deve conter: contexto social/digital, dores, objetivos, restriçõe
 ## 💻 Versão Beta (1º Bimestre)
 
 - **Linguagem:** Java
-- **Interface:** (PREENCHER — CLI ou UI simples)
 - **Persistência:** Banco de dados relacional — PostgreSQL
 
 ### Classes principais
@@ -163,37 +162,10 @@ Cada persona deve conter: contexto social/digital, dores, objetivos, restriçõe
 - `Solicitacao`
 - `Categoria`
 - `Endereco`
-- `MovimentacaoSolicitacao`
-- `Anexo`
+- `HitoricoSolicitacao`
 - `Log`
-- `FilaAtendimento`
-- `ServicoSolicitacoes`
-
-### Funcionalidades mínimas
-- Criar solicitação (identificada ou anônima)
-- Listar solicitações
-- Buscar por protocolo
-- Atualizar status com comentário obrigatório
-- Registrar movimentação
 
 ---
-
-## 🧹 Clean Code
-
-Relatório analisando 3 funções:
-- (PREENCHER)
-- (PREENCHER)
-- (PREENCHER)
-
-Práticas aplicadas:
-- Nomes significativos
-- SRP (Single Responsibility Principle)
-- Métodos curtos
-- Tratamento de erros
-- Separação de responsabilidades
-
----
-
 ## 🚀 Como Rodar o Projeto
 
 ### Pré-requisitos
@@ -230,8 +202,6 @@ db.password=SUA_SENHA
 Os scripts ficam em `src/main/resources/db/` e devem ser rodados na ordem no seu PostgreSQL:
 ```
 V1__CREATE_TABLE.sql   → criação das tabelas
-V2__INSERT_TABLE.sql   → dados iniciais (seed)
-...
 ```
 
 Você pode executar pelo terminal do PostgreSQL ou por uma ferramenta como DBeaver/pgAdmin.
@@ -244,14 +214,32 @@ javac Main.java
 java Main
 ```
 
----
+**6. Diferentes Usuários**
 
-## 🎥 Entrega
+Após criar 4 usuários através da interface do sistema, execute as seguintes query no banco de dados para atribuir as permissões correspondentes:
 
-- Link do GitHub (versão beta):
-- Documento com perfis + relatório clean code:
-- Link do Vídeo:
-- Tema escolhido: (PREENCHER)
+- `S`: Servidor Público
+- `G`: Gestor
+- `A`: Administrador (Adm)
+- `C`: Cidadão
+
+```bash
+UPDATE usuarios
+SET tipo_usuario = 'S'
+WHERE id = '1';
+
+UPDATE usuarios
+SET tipo_usuario = 'G'
+WHERE id = '2';
+
+UPDATE usuarios
+SET tipo_usuario = 'A'
+WHERE id = '3';
+
+UPDATE usuarios
+SET tipo_usuario = 'C'
+WHERE id = '4';
+```
 
 ---
 
@@ -264,4 +252,4 @@ java Main
 ---
 
 Status: Em desenvolvimento 🚧
-Versão: v0.1-beta
+Versão: v1.0-beta
