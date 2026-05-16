@@ -111,4 +111,85 @@ public class DaoEnderecoImpl implements DaoEndereco {
         }
     }
 
+    @Override
+    public void atualizar(Endereco endereco) {
+
+        String sql = """
+            UPDATE\s""" + TABELA + """
+            SET nome = ?,
+                cep = ?,
+                logradouro = ?,
+                numero = ?,
+                complemento = ?,
+                bairro = ?,
+                cidade = ?,
+                estado = ?
+            WHERE id = ?
+            """;
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setString(1, endereco.getCep());
+            stmt.setString(2, endereco.getLogradouro());
+            stmt.setString(3, endereco.getNumero());
+            stmt.setString(4, endereco.getComplemento());
+            stmt.setString(5, endereco.getBairro());
+            stmt.setString(6, endereco.getCidade());
+            stmt.setString(6, endereco.getEstado());
+            stmt.setLong(6, endereco.getId());
+
+            int linhas = stmt.executeUpdate();
+
+            if (linhas == 0) {
+                throw new RuntimeException("Não foi possível atualizar: Endereço não encontrado no sistema.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro interno no servidor ao atualizar o endereço. Aguarde a manutenção.");
+        }
+    }
+
+    @Override
+    public void desativar(Long id) {
+
+        String sql = "UPDATE " + TABELA + " SET ativo = false WHERE id = ?";
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+
+            stmt.setLong(1, id);
+
+            int linhas = stmt.executeUpdate();
+
+            if (linhas == 0) {
+                throw new RuntimeException("O endereço solicitado não foi localizado para desativação.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Serviço de banco de dados indisponível no momento. Erro 500.");
+        }
+    }
+
+    @Override
+    public Endereco buscarPorCep(String cep) {
+
+        String sql = "SELECT * FROM " + TABELA + " WHERE cep = ?";
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setString(1, cep);
+            try (ResultSet rs = stmt.executeQuery()) {
+                return rs.next() ? map(rs) : null;
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Erro ao buscar CEP. Verifique sua conexão com o servidor.");
+        }
+    }
 }

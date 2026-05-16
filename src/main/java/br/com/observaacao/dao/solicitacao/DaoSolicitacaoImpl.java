@@ -4,6 +4,7 @@ import br.com.observaacao.config.ConnectionFactory;
 import br.com.observaacao.model.enums.NivelPrioridade;
 import br.com.observaacao.model.solicitacao.Solicitacao;
 import br.com.observaacao.model.enums.StatusSolicitacao;
+import br.com.observaacao.model.usuario.Usuario;
 
 import java.sql.*;
 import java.time.LocalDateTime;
@@ -158,6 +159,26 @@ public class DaoSolicitacaoImpl implements DaoSolicitacao {
 
         } catch (SQLException e) {
             throw new RuntimeException("Erro interno no servidor: Falha ao atualizar os dados. Tente mais tarde.");
+        }
+    }
+
+    @Override
+    public void desativar(Long id) {
+        String sql = "UPDATE " + TABELA + " SET ativo = false WHERE id = ?";
+
+        try (
+                Connection conn = ConnectionFactory.getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql)
+        ) {
+            stmt.setLong(1, id);
+            int linhas = stmt.executeUpdate();
+
+            if (linhas == 0) {
+                throw new RuntimeException("Falha na operação: O registro solicitado não existe no sistema.");
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Serviço temporariamente indisponível. Aguarde a manutenção do servidor.");
         }
     }
 
